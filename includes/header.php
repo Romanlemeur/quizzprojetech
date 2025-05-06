@@ -3,65 +3,43 @@ require_once 'includes/config.php';
 $currentPage = basename($_SERVER['PHP_SELF']);
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= SITE_NAME ?> - <?= isset($pageTitle) ? $pageTitle : 'Online Quiz Platform' ?></title>
-    <link rel="stylesheet" href="css/styles.css">
-    <link rel="stylesheet" href="css/animations.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title><?= SITE_NAME ?> — <?= $pageTitle ?? '' ?></title>
+  <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-    <header class="site-header">
-        <div class="container">
-            <div class="header-content">
-                <div class="logo">
-                    <a href="index.php"><?= SITE_NAME ?></a>
-                </div>
-                <nav class="main-nav">
-                    <ul>
-                        <li class="<?= $currentPage == 'index.php' ? 'active' : '' ?>">
-                            <a href="index.php">Home</a>
-                        </li>
-                        <li class="<?= $currentPage == 'quiz.php' ? 'active' : '' ?>">
-                            <a href="quiz.php">Quiz</a>
-                        </li>
-                        <li class="<?= $currentPage == 'leaderboard.php' ? 'active' : '' ?>">
-                            <a href="leaderboard.php">Leaderboard</a>
-                        </li>
-                    </ul>
-                </nav>
-                <div class="user-actions">
-                    <?php if (isLoggedIn()): ?>
-                        <div class="user-profile">
-                            <span class="username"><?= $_SESSION['username'] ?></span>
-                            <a href="logout.php" class="btn btn-outline">Logout</a>
-                        </div>
-                    <?php else: ?>
-                        <a href="login.php" class="btn btn-primary">Login</a>
-                        <a href="register.php" class="btn btn-outline">Register</a>
-                    <?php endif; ?>
-                </div>
-                <button class="mobile-menu-toggle" aria-label="Toggle menu">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </button>
-            </div>
-        </div>
-    </header>
-    <div class="mobile-menu">
-        <ul>
-            <li><a href="index.php">Home</a></li>
-            <li><a href="quiz.php">Quiz</a></li>
-            <li><a href="leaderboard.php">Leaderboard</a></li>
-            <?php if (isLoggedIn()): ?>
-                <li><a href="logout.php">Logout</a></li>
-            <?php else: ?>
-                <li><a href="login.php">Login</a></li>
-                <li><a href="register.php">Register</a></li>
-            <?php endif; ?>
-        </ul>
-    </div>
-    <main>
+<header class="simple-header">
+<div class="header-left">
+    <a href="index.php" class="site-logo">QuizMaster</a>
+  </div>
+  <button class="mobile-menu-toggle" aria-label="Toggle menu">
+    <span></span><span></span><span></span>
+  </button>
+
+  <nav class="header-nav">
+    <a href="index.php"      class="<?= $currentPage==='index.php'      ? 'active' : '' ?>">Home</a>
+    <a href="quiz.php"       class="<?= $currentPage==='quiz.php'       ? 'active' : '' ?>">Quiz</a>
+    <a href="leaderboard.php" class="<?= $currentPage==='leaderboard.php' ? 'active' : '' ?>">Leaderboard</a>
+  </nav>
+
+  <div class="header-right">
+    <?php if(isLoggedIn()): ?>
+      <a href="profile.php" class="btn-login">Mon compte</a>
+    <?php else: ?>
+      <a href="login.php"    class="btn-login">Connexion</a>
+    <?php endif; ?>
+  </div>
+</header>
+
+  </header>
+  <main>
+  <script>
+  document.querySelector('.mobile-menu-toggle')
+    .addEventListener('click', function() {
+      document.querySelector('.simple-header').classList.toggle('menu-open');
+      this.classList.toggle('open');
+    });
+</script>

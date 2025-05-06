@@ -20,104 +20,102 @@ require_once 'includes/header.php';
     </div>
 </section>
 
-<section class="features">
+<!-- Catégories Populaires (Exemples statiques) -->
+<section class="categories-populaires">
     <div class="container">
-        <h2 class="section-title">Why Choose Our Platform?</h2>
-        <div class="features-grid">
-            <div class="feature-card card">
-                <div class="feature-icon">
-                    <i class="fas fa-brain"></i>
-                </div>
-                <h3>Challenge Yourself</h3>
-                <p>Test your knowledge on various topics with our diverse collection of quizzes.</p>
-            </div>
-            <div class="feature-card card">
-                <div class="feature-icon">
-                    <i class="fas fa-trophy"></i>
-                </div>
-                <h3>Compete with Others</h3>
-                <p>See how you stack up against others on our leaderboard and earn bragging rights.</p>
-            </div>
-            <div class="feature-card card">
-                <div class="feature-icon">
-                    <i class="fas fa-graduation-cap"></i>
-                </div>
-                <h3>Learn New Things</h3>
-                <p>Expand your knowledge while having fun with our educational quizzes.</p>
-            </div>
-            <div class="feature-card card">
-                <div class="feature-icon">
-                    <i class="fas fa-mobile-alt"></i>
-                </div>
-                <h3>Play Anywhere</h3>
-                <p>Enjoy our quizzes on any device, whether you're at home or on the go.</p>
-            </div>
-        </div>
-    </div>
-</section>
-
-<section class="categories">
-    <div class="container">
-        <h2 class="section-title">Quiz Categories</h2>
+        <h2 class="section-title">Catégories Populaires</h2>
         <div class="categories-grid">
-            <?php
-            $categories = getQuizCategories();
-            foreach ($categories as $category) {
-                echo '<div class="category-card card">';
-                echo '<h3>' . $category['name'] . '</h3>';
-                echo '<p>' . $category['description'] . '</p>';
-                
-                // Count quizzes in this category
-                $quizzes = getQuizzesByCategory($category['id']);
-                $quiz_count = count($quizzes);
-                
-                echo '<p class="quiz-count">' . $quiz_count . ' ' . ($quiz_count == 1 ? 'Quiz' : 'Quizzes') . '</p>';
-                echo '<a href="quiz.php?category=' . $category['id'] . '" class="btn btn-primary">Start Quiz</a>';
-                echo '</div>';
-            }
-            ?>
+            <div class="category-card card">
+                <h3>Science</h3>
+                <p>Quiz sur la physique, la chimie et la biologie.</p>
+                <a href="#" class="btn btn-primary">Voir Quiz</a>
+            </div>
+            <div class="category-card card">
+                <h3>Histoire</h3>
+                <p>Explorez les grandes dates et personnages historiques.</p>
+                <a href="#" class="btn btn-primary">Voir Quiz</a>
+            </div>
+            <div class="category-card card">
+                <h3>Cinéma</h3>
+                <p>Questions sur les films cultes et les réalisateurs.</p>
+                <a href="#" class="btn btn-primary">Voir Quiz</a>
+            </div>
         </div>
     </div>
 </section>
 
+<!-- Quizz du Moment (Exemples statiques) -->
+<section class="quizz-du-moment">
+    <div class="container">
+        <h2 class="section-title">Quizz du Moment</h2>
+        <div class="quiz-grid">
+            <div class="quiz-card card">
+                <h3>Quiz Space</h3>
+                <p>Testez vos connaissances sur l'univers et les étoiles.</p>
+                <a href="#" class="btn btn-primary">Jouer</a>
+            </div>
+            <div class="quiz-card card">
+                <h3>Quiz Food</h3>
+                <p>Tout savoir sur la gastronomie mondiale.</p>
+                <a href="#" class="btn btn-primary">Jouer</a>
+            </div>
+            <div class="quiz-card card">
+                <h3>Quiz Tech</h3>
+                <p>Les dernières innovations et gadgets.</p>
+                <a href="#" class="btn btn-primary">Jouer</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Meilleurs Joueurs (Top 5 statique) -->
 <section class="leaderboard-preview">
     <div class="container">
         <div class="section-header">
-            <h2 class="section-title">Top Performers</h2>
-            <a href="leaderboard.php" class="btn btn-outline">View Full Leaderboard</a>
+            <h2 class="section-title">Meilleurs Joueurs</h2>
+            <a href="leaderboard.php" class="btn btn-outline">Voir le classement complet</a>
         </div>
         <div class="card">
             <table class="leaderboard-table">
                 <thead>
                     <tr>
-                        <th>Rank</th>
-                        <th>Player</th>
+                        <th>Rang</th>
+                        <th>Joueur</th>
                         <th>Quiz</th>
                         <th>Score</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <?php
-                    $leaderboard = getLeaderboard(null, 5);
-                    foreach ($leaderboard as $index => $entry) {
-                        $rank = $index + 1;
-                        $rank_class = "rank-badge";
-                        if ($rank <= 3) {
-                            $rank_class .= " rank-" . $rank;
-                        }
-                        
-                        echo '<tr>';
-                        echo '<td><span class="' . $rank_class . '">' . $rank . '</span></td>';
-                        echo '<td>' . $entry['username'] . '</td>';
-                        echo '<td>' . $entry['quiz_title'] . '</td>';
-                        echo '<td class="user-score">' . $entry['score'] . '</td>';
-                        echo '</tr>';
-                    }
-                    
-                    if (empty($leaderboard)) {
-                        echo '<tr><td colspan="4" style="text-align: center;">No scores yet. Be the first to take a quiz!</td></tr>';
-                    }
-                    ?>
+                    <tr>
+                        <td><span class="rank-badge rank-1">1</span></td>
+                        <td>Alice</td>
+                        <td>Quiz Space</td>
+                        <td class="user-score">95</td>
+                    </tr>
+                    <tr>
+                        <td><span class="rank-badge rank-2">2</span></td>
+                        <td>Bob</td>
+                        <td>Quiz Tech</td>
+                        <td class="user-score">90</td>
+                    </tr>
+                    <tr>
+                        <td><span class="rank-badge rank-3">3</span></td>
+                        <td>Charlie</td>
+                        <td>Quiz Food</td>
+                        <td class="user-score">88</td>
+                    </tr>
+                    <tr>
+                        <td><span class="rank-badge">4</span></td>
+                        <td>Diana</td>
+                        <td>Quiz Histoire</td>
+                        <td class="user-score">85</td>
+                    </tr>
+                    <tr>
+                        <td><span class="rank-badge">5</span></td>
+                        <td>Ethan</td>
+                        <td>Quiz Science</td>
+                        <td class="user-score">82</td>
+                    </tr>
                 </tbody>
             </table>
         </div>

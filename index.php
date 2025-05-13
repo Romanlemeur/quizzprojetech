@@ -20,7 +20,7 @@ require_once 'includes/header.php';
     </div>
 </section>
 
-<!-- Catégories Populaires (Exemples statiques) -->
+
 <section class="categories-populaires">
     <div class="container">
         <h2 class="section-title">Catégories Populaires</h2>
@@ -28,23 +28,23 @@ require_once 'includes/header.php';
             <div class="category-card card">
                 <h3>Science</h3>
                 <p>Quiz sur la physique, la chimie et la biologie.</p>
-                <a href="#" class="btn btn-primary">Voir Quiz</a>
+                <a href="quizzexample.php" class="btn btn-primary">Voir Quiz</a>
             </div>
             <div class="category-card card">
                 <h3>Histoire</h3>
                 <p>Explorez les grandes dates et personnages historiques.</p>
-                <a href="#" class="btn btn-primary">Voir Quiz</a>
+                <a href="quizzexample.php" class="btn btn-primary">Voir Quiz</a>
             </div>
             <div class="category-card card">
                 <h3>Cinéma</h3>
                 <p>Questions sur les films cultes et les réalisateurs.</p>
-                <a href="#" class="btn btn-primary">Voir Quiz</a>
+                <a href="quizzexample.php" class="btn btn-primary">Voir Quiz</a>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Quizz du Moment (Exemples statiques) -->
+
 <section class="quizz-du-moment">
     <div class="container">
         <h2 class="section-title">Quizz du Moment</h2>
@@ -52,23 +52,23 @@ require_once 'includes/header.php';
             <div class="quiz-card card">
                 <h3>Quiz Space</h3>
                 <p>Testez vos connaissances sur l'univers et les étoiles.</p>
-                <a href="#" class="btn btn-primary">Jouer</a>
+                <a href="quizzexample.php" class="btn btn-primary">Jouer</a>
             </div>
             <div class="quiz-card card">
                 <h3>Quiz Food</h3>
                 <p>Tout savoir sur la gastronomie mondiale.</p>
-                <a href="#" class="btn btn-primary">Jouer</a>
+                <a href="quizzexample.php" class="btn btn-primary">Jouer</a>
             </div>
             <div class="quiz-card card">
                 <h3>Quiz Tech</h3>
                 <p>Les dernières innovations et gadgets.</p>
-                <a href="#" class="btn btn-primary">Jouer</a>
+                <a href="quizzexample.php" class="btn btn-primary">Jouer</a>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Meilleurs Joueurs (Top 5 statique) -->
+
 <section class="leaderboard-preview">
     <div class="container">
         <div class="section-header">

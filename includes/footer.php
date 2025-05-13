@@ -1,12 +1,12 @@
 <footer class="site-footer">
   <div class="container footer-grid">
-    <!-- Colonne 1 : Logo & accroche -->
+    
     <div class="footer-col footer-logo">
       <h3><?= SITE_NAME ?></h3>
       <p>Test your knowledge with our interactive quizzes</p>
     </div>
 
-    <!-- Colonne 2 : Liens -->
+    
     <div class="footer-col">
       <h4>Quick Links</h4>
       <ul>
@@ -20,7 +20,7 @@
       </ul>
     </div>
 
-    <!-- Colonne 3 : Support -->
+    
     <div class="footer-col">
       <h4>Support</h4>
       <ul>

@@ -1,5 +1,5 @@
 <?php
-// register.php
+
 $pageTitle = "Inscription";
 require_once 'includes/header.php';
 ?>
@@ -34,7 +34,7 @@ require_once 'includes/header.php';
 </div>
 
 <style>
-  /* Animated neon gradient background (reuse from login) */
+  
   .login-bg {
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
@@ -49,7 +49,7 @@ require_once 'includes/header.php';
     100% { background-position: 0% 50%; }
   }
 
-  /* Auth container and card */
+  
   .auth-container {
     display: flex;
     justify-content: center;

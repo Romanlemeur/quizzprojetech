@@ -20,7 +20,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
   </button>
 
   <nav class="header-nav">
-   <a href="https://invader.bar/">Home</a>
+   <a href="index.php">Home</a>
     <a href="quiz.php"       class="<?= $currentPage==='quiz.php'       ? 'active' : '' ?>">Quiz</a>
     <a href="leaderboard.php" class="<?= $currentPage==='leaderboard.php' ? 'active' : '' ?>">Leaderboard</a>
   </nav>

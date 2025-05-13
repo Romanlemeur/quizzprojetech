@@ -1,21 +1,21 @@
 <?php
-// profile.php
+
 $pageTitle = "Mon Compte";
 require_once 'includes/header.php';
 
-// Simulated user data
+
 $user = [
     'username' => isset($_POST['username']) ? $_POST['username'] : 'Alice',
     'email'    => 'alice@example.com',
 ];
-// Simulated quiz history
+
 $history = [
     ['quiz' => 'Quiz Space', 'score' => 95, 'date' => '2025-05-01'],
     ['quiz' => 'Quiz Food',  'score' => 88, 'date' => '2025-05-03'],
     ['quiz' => 'Quiz Tech',  'score' => 90, 'date' => '2025-05-05'],
 ];
 
-// Handle name update
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['username'])) {
     $user['username'] = trim($_POST['username']);
     $message = "Nom d'utilisateur mis à jour !";
@@ -82,6 +82,58 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['username'])) {
   }
   .leaderboard-table tbody tr:nth-child(even) { background: rgba(255,255,255,0.05); }
   .leaderboard-table tbody tr:hover { background: rgba(57,255,20,0.1); }
+  .leaderboard-preview .card {
+  width: 100%;
+  overflow-x: auto;        
+  padding: var(--space-lg);
+  background: rgba(0,0,0,0.6);
+  border: 2px solid var(--color-accent);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 0 12px var(--color-accent);
+  margin-top: var(--space-md);
+}
+
+
+.leaderboard-table {
+  width: 100% !important;
+  border-collapse: separate;
+  border-spacing: 0 8px;  
+}
+  
+  
+  .leaderboard-table thead th {
+    font-family: var(--font-family-sans);
+    color: var(--color-primary);
+    text-shadow: 0 0 4px var(--color-primary);
+    padding-bottom: var(--space-sm);
+    border-bottom: 1px solid var(--color-border);
+    text-align: center;
+  }
+  
+  
+  .leaderboard-table tbody tr:nth-child(odd) {
+    background: rgba(255,255,255,0.05);
+  }
+  .leaderboard-table tbody tr:hover {
+    background: rgba(57,255,20,0.1);
+  }
+  
+  
+  .leaderboard-table th{
+    padding: 10px;
+    padding-right: 20px;
+    color: var(--color-text-primary);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-md);
+  }
+
+  .leaderboard-table td {
+    padding: 10px;
+    padding-left: 120px;
+    color: var(--color-text-primary);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-md);
+  }
 </style>
 
 <div class="container profile-page">
@@ -127,5 +179,87 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['username'])) {
     </table>
   </div>
 </div>
+
+<section class="leaderboard-preview">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Meilleurs Joueurs</h2>
+        </div>
+        <div class="card">
+            <table class="leaderboard-table">
+                <thead>
+                    <tr>
+                        <th>Rang</th>
+                        <th>Joueur</th>
+                        <th>Quiz</th>
+                        <th>Score</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="rank-badge rank-1">1</span></td>
+                        <td>Alice</td>
+                        <td>Quiz Space</td>
+                        <td class="user-score">95</td>
+                    </tr>
+                    <tr>
+                        <td><span class="rank-badge rank-2">2</span></td>
+                        <td>Bob</td>
+                        <td>Quiz Tech</td>
+                        <td class="user-score">90</td>
+                    </tr>
+                    <tr>
+                        <td><span class="rank-badge rank-3">3</span></td>
+                        <td>Charlie</td>
+                        <td>Quiz Food</td>
+                        <td class="user-score">88</td>
+                    </tr>
+                    <tr>
+                        <td><span class="rank-badge">4</span></td>
+                        <td>Diana</td>
+                        <td>Quiz Histoire</td>
+                        <td class="user-score">85</td>
+                    </tr>
+                    <tr>
+                        <td><span class="rank-badge">5</span></td>
+                        <td>Ethan</td>
+                        <td>Quiz Science</td>
+                        <td class="user-score">82</td>
+                    </tr>
+                    <tr>
+                        <td><span class="rank-badge">6</span></td>
+                        <td>Ethan</td>
+                        <td>Quiz Science</td>
+                        <td class="user-score">82</td>
+                    </tr>
+                    <tr>
+                        <td><span class="rank-badge">7</span></td>
+                        <td>Ethan</td>
+                        <td>Quiz Science</td>
+                        <td class="user-score">82</td>
+                    </tr>
+                    <tr>
+                        <td><span class="rank-badge">8</span></td>
+                        <td>Ethan</td>
+                        <td>Quiz Science</td>
+                        <td class="user-score">82</td>
+                    </tr>
+                    <tr>
+                        <td><span class="rank-badge">9</span></td>
+                        <td>Ethan</td>
+                        <td>Quiz Science</td>
+                        <td class="user-score">82</td>
+                    </tr>
+                    <tr>
+                        <td><span class="rank-badge">10</span></td>
+                        <td>Ethan</td>
+                        <td>Quiz Science</td>
+                        <td class="user-score">82</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
 
 <?php require_once 'includes/footer.php'; ?>

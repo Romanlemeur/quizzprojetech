@@ -3,17 +3,17 @@ $pageTitle = "Quiz";
 require_once 'includes/header.php';
 ?>
 
-<!-- Retro Gaming Background Layer -->
+
 <div class="retro-bg-layer"></div>
 
-<!-- Quiz de la Semaine Fullscreen Hero -->
+
 <section class="quizz-week hero-week">
-  <!-- Overlay sombre -->
+  
   <div class="hero-overlay"></div>
   <div class="container hero-content">
     <h2 class="section-title">Quiz de la Semaine</h2>
     <div class="week-calendar">
-      <!-- Jours de la semaine -->
+      
       <div class="day-header">Lundi</div>
       <div class="day-header">Mardi</div>
       <div class="day-header">Mercredi</div>
@@ -22,7 +22,7 @@ require_once 'includes/header.php';
       <div class="day-header">Samedi</div>
       <div class="day-header">Dimanche</div>
 
-      <!-- Contenu des jours (exemples) -->
+      
       <div class="day-cell">
         <h4>Quiz Space</h4>
         <p>14h00</p>
@@ -46,7 +46,7 @@ require_once 'includes/header.php';
   </div>
 </section>
 
-<!-- Quizz Populaires -->
+
 <section class="quizz-popular transparent-bg">
   <div class="container">
     <h2 class="section-title">Quizz Populaires</h2>
@@ -76,7 +76,7 @@ require_once 'includes/header.php';
   </div>
 </section>
 
-<!-- Quizz Originaux -->
+
 <section class="quizz-original transparent-bg">
   <div class="container">
     <h2 class="section-title">Quizz Originaux</h2>

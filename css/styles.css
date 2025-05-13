@@ -1,17 +1,17 @@
-/* 1) Polices Google Fonts */
+
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=VT323&display=swap');
 
 :root {
-    /* — Couleurs néon & fond sombre — */
-    --color-primary: #39FF14;           /* néon vert */
+    
+    --color-primary: #39FF14;           
     --color-primary-dark: #2FCF11;
-    --color-accent: #FF1177;            /* néon rose */
-    --color-background: #0E0E0E;        /* très foncé */
+    --color-accent: #FF1177;            
+    --color-background: #0E0E0E;        
     --color-text-primary: #FFFFFF;
     --color-text-secondary: #8A8A8A;
     --color-border: #222222;
 
-    /* — Espacements / Typo — */
+    
     --font-family-sans: 'Orbitron', sans-serif;
     --font-family-mono: 'VT323', monospace;
     --font-size-md: 16px;
@@ -19,11 +19,11 @@
     --space-md: 32px;
     --radius-sm: 8px;
 
-    /* — Effet glow — */
+    
     --glow: 0 0 8px var(--color-primary), 0 0 16px var(--color-accent);
 }
 
-/* RESET & GLOBAL */
+
 * {
     margin: 0; padding: 0; box-sizing: border-box;
 }
@@ -42,7 +42,7 @@ a:hover {
     color: var(--color-accent);
 }
 
-/* HEADER TRANSPARENT */
+
 .site-header {
     position: absolute;
     top: 0; left: 0; width: 100%;
@@ -71,7 +71,7 @@ a:hover {
     text-shadow: var(--glow);
 }
 
-/* HERO FULLSCREEN */
+
 .hero {
     position: relative;
     height: 100vh;
@@ -107,7 +107,7 @@ a:hover {
     margin-bottom: var(--space-md);
 }
 
-/* BOUTONS NÉON */
+
 .btn {
     font-family: var(--font-family-mono);
     padding: var(--space-sm) var(--space-md);
@@ -139,7 +139,6 @@ a:hover {
     box-shadow: 0 0 12px var(--color-primary), inset 0 0 8px var(--color-primary);
 }
 
-/* SECTIONS GENERIQUES */
 .section {
     padding: var(--space-md) var(--space-md);
 }
@@ -148,7 +147,7 @@ a:hover {
     margin: 0 auto;
 }
 
-/* TITRES */
+
 h2, h3 {
     font-family: var(--font-family-sans);
     color: var(--color-accent);
@@ -156,7 +155,7 @@ h2, h3 {
     margin-bottom: var(--space-sm);
 }
 
-/* GALLERY GRID */
+
 .gallery-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px,1fr));
@@ -168,7 +167,7 @@ h2, h3 {
     box-shadow: 0 0 4px rgba(0,0,0,0.5);
 }
 
-/* FOOTER */
+
 .site-footer {
     background: #111;
     color: var(--color-text-secondary);
@@ -180,14 +179,14 @@ h2, h3 {
     color: var(--color-primary);
 }
 
-/* RESPONSIVE */
+
 @media (max-width: 768px) {
     .site-header { padding: var(--space-sm); }
     .hero h1 { font-size: 3rem; }
     .hero p { font-size: 1rem; }
 }
 
-/* — ESPACEMENT ET ALIGNEMENT DES GRILLES — */
+
 .categories-grid,
 .quiz-grid {
   display: grid;
@@ -196,7 +195,7 @@ h2, h3 {
   margin-top: var(--space-md);
 }
 
-/* — STYLING DES CARTES — */
+
 .category-card,
 .quiz-card {
   background: rgba(0, 0, 0, 0.5);
@@ -209,7 +208,7 @@ h2, h3 {
   justify-content: space-between;
 }
 
-/* Titre de la carte */
+
 .category-card h3,
 .quiz-card h3 {
   margin-bottom: var(--space-xs);
@@ -218,7 +217,7 @@ h2, h3 {
   text-shadow: 0 0 4px var(--color-accent);
 }
 
-/* Description / paragraphe */
+
 .category-card p,
 .quiz-card p {
   flex-grow: 1;
@@ -226,26 +225,26 @@ h2, h3 {
   color: var(--color-text-secondary);
 }
 
-/* Bouton centré en bas */
+
 .category-card .btn,
 .quiz-card .btn {
   align-self: center;
   margin-top: auto;
 }
 
-/* — ESPACEMENT ENTRE SECTIONS — */
+
 section {
   padding-top: var(--space-xxl);
   padding-bottom: 30px;
 }
 
-/* Réduire le texte superposé */
+
 .section-title {
   padding-top: 30px;
   margin-bottom: 40px;
 }
 
-/* Ajustement mobile */
+
 @media (max-width: 600px) {
   .categories-grid,
   .quiz-grid {
@@ -253,10 +252,10 @@ section {
   }
 }
 
-/* Conteneur du leaderboard en grille centrée */
+
 .leaderboard-preview .card {
   width: 100%;
-  overflow-x: auto;        /* en cas de petit écran, scrollez horizontalement */
+  overflow-x: auto;        
   padding: var(--space-lg);
   background: rgba(0,0,0,0.6);
   border: 2px solid var(--color-accent);
@@ -265,14 +264,14 @@ section {
   margin-top: var(--space-md);
 }
 
-/* 2. Le tableau s’étend à 100% à l’intérieur */
+
 .leaderboard-table {
   width: 100% !important;
   border-collapse: separate;
-  border-spacing: 0 8px;  /* espace vertical entre les lignes */
+  border-spacing: 0 8px;  
 }
   
-  /* En-tête du tableau */
+  
   .leaderboard-table thead th {
     font-family: var(--font-family-sans);
     color: var(--color-primary);
@@ -282,7 +281,7 @@ section {
     text-align: center;
   }
   
-  /* Corps du tableau */
+ 
   .leaderboard-table tbody tr:nth-child(odd) {
     background: rgba(255,255,255,0.05);
   }
@@ -290,7 +289,7 @@ section {
     background: rgba(57,255,20,0.1);
   }
   
-  /* Cellules */
+  
   .leaderboard-table th{
     padding: 10px;
     padding-right: 20px;
@@ -307,7 +306,7 @@ section {
     font-size: var(--font-size-md);
   }
   
-  /* Badges de rang néon */
+  
   .rank-badge {
     display: inline-block;
     width: 32px; height: 32px;
@@ -324,7 +323,7 @@ section {
   .rank-2 { background: silver; color: #111; }
   .rank-3 { background: #cd7f32; color: #111; }
   
-  /* Bouton Voir classement */
+  
   .section-header .btn-outline {
     margin-bottom: var(--space-md);
     padding: 10px;
@@ -338,9 +337,7 @@ section {
     box-shadow: 0 0 12px var(--color-primary);
   }
   
-  /* ===========================
-   HEADER RÉTRO NÉON
-   =========================== */
+  
 .simple-header {
     display: flex;
     align-items: center;
@@ -354,14 +351,14 @@ section {
     font-family: 'Orbitron', sans-serif;
   }
   
-  /* Logo */
+  
   .site-logo {
     font-size: 1.75rem;
     color: #FF1177;
     text-shadow: 0 0 6px #FF1177, 0 0 12px #FF1177;
   }
   
-  /* Nav centrale */
+  
   .header-nav {
     display: flex;
     gap: 32px;
@@ -391,7 +388,7 @@ section {
     filter: drop-shadow(0 0 4px #FF1177);
   }
   
-  /* Bouton Connexion néon */
+  
   .btn-login {
     font-family: 'VT323', monospace;
     font-size: 1rem;
@@ -423,7 +420,7 @@ section {
     padding: 0;
   }
   
-  /* Barres du hamburger */
+  
   .mobile-menu-toggle span {
     display: block;
     height: 3px;
@@ -431,7 +428,7 @@ section {
     border-radius: 2px;
   }
   
-  /* Sur mobile (≤768px), on cache la nav et on affiche le toggle */
+  
   @media (max-width: 768px) {
     .header-nav,
     .header-right {
@@ -521,7 +518,7 @@ section {
     color: var(--color-text-secondary);
   }
   
-  /* Retro Gaming Background Layer */
+  
 .retro-bg-layer {
     position: fixed;
     inset: 0;
@@ -530,7 +527,7 @@ section {
     z-index: -1;
   }
   
-  /* Hero Week Section */
+
   .hero-week {
     position: relative;
     height: 100vh;
@@ -551,31 +548,31 @@ section {
     color: #fff;
   }
 
-  /* Sections Quizz Populaires & Originaux en fond noir */
+  
 .quizz-popular,
 .quizz-original {
-  background: #000;           /* fond noir uni */
+  background: #000;           
   padding: var(--space-xxl) 0;
 }
 
-/* Ajout d’un conteneur interne centré */
+
 .quizz-popular .container,
 .quizz-original .container {
   max-width: 1000px;
   margin: 0 auto;
 }
 
-/* Grille des quiz */
+
 .quiz-grids {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: var(--space-lg);       /* plus d’espace entre les cartes */
+  gap: var(--space-lg);       
   padding: 0 var(--space-md);
 }
 
-/* Cartes plus spacieuses et fond noir */
+
 .quiz-cards {
-  background: #111;           /* fond très sombre */
+  background: #111;           
   border: none;
   border-radius: 20px;
   margin-right: 20px;
@@ -585,13 +582,13 @@ section {
   margin-bottom: 20px;
 }
 
-/* Effet hover léger */
+
 .quiz-cards:hover {
   transform: translateY(-4px);
   box-shadow: 0 8px 16px rgba(0,0,0,0.7);
 }
 
-/* Corps de la carte : espacement interne */
+
 .quiz-cards .card-body {
   display: flex;
   flex-direction: column;
@@ -603,7 +600,7 @@ section {
   margin-top: 10px;
 }
 
-/* Titres et paragraphes */
+
 .quiz-cards h3 {
   margin-bottom: 30px;
  padding-top: 10px;
@@ -615,14 +612,14 @@ section {
   color: var(--color-text-secondary);
 }
 
-/* Bouton “Jouer” aligné bas */
+
 .quiz-cards .btn-primary {
   align-self: center;
   padding: var(--space-sm) var(--space-lg);
 }
 
 
-  /* Footer général */
+ 
 .site-footer {
     background: linear-gradient(90deg, #250034, #58114b);
     color: var(--color-text-secondary);
@@ -630,7 +627,7 @@ section {
     font-family: var(--font-family-mono);
   }
   
-  /* Grille responsive à 4 colonnes */
+
   .footer-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -639,7 +636,7 @@ section {
     margin-bottom: var(--space-xl);
   }
   
-  /* Chaque colonne */
+
   .footer-col h4 {
     font-family: var(--font-family-sans);
     color: var(--color-accent);
@@ -661,7 +658,7 @@ section {
     color: var(--color-primary);
   }
   
-  /* Logo/accroche */
+
   .footer-logo h3 {
     font-family: var(--font-family-sans);
     font-size: var(--font-size-xl);
@@ -670,7 +667,7 @@ section {
     margin-bottom: var(--space-sm);
   }
   
-  /* Réseaux sociaux */
+
   .footer-social .social-links {
     display: flex;
     gap: var(--space-sm);
@@ -693,7 +690,7 @@ section {
     box-shadow: 0 0 8px var(--color-primary);
   }
   
-  /* Bas de footer */
+
   .footer-bottom {
     text-align: center;
     padding: var(--space-md) 0;
@@ -702,7 +699,7 @@ section {
     color: var(--color-text-tertiary);
   }
   
-  /* Responsive mobile */
+
   @media (max-width: 600px) {
     .footer-grid {
       grid-template-columns: 1fr;
@@ -715,7 +712,7 @@ section {
   
 
 
-  /* — HEADER CONTAINER — */
+ 
 .invader-header {
   display: flex;
   align-items: center;
@@ -729,7 +726,7 @@ section {
   box-shadow: 0 4px 12px rgba(0,0,0,0.6);
 }
 
-/* — LOGO — */
+
 .invader-header .header-left {
   display: flex;
   align-items: center;
@@ -748,7 +745,7 @@ section {
   filter: drop-shadow(0 0 6px #ff1177);
 }
 
-/* — NAVIGATION — */
+
 .invader-header .main-nav ul {
   display: flex;
   align-items: center;
@@ -780,7 +777,7 @@ section {
   filter: drop-shadow(0 0 4px #ff1177);
 }
 
-/* — BOUTONS — */
+
 .invader-header .header-right .btn {
   font-family: var(--font-family-mono);
   font-size: var(--font-size-md);
@@ -791,7 +788,7 @@ section {
   transition: all 0.2s;
 }
 
-/* Bouton rose néon */
+
 .invader-header .btn-primary {
   background: #ff1177;
   color: #FFFFFF;
@@ -803,7 +800,7 @@ section {
   box-shadow: 0 0 12px #ff1177, inset 0 0 6px #ff1177;
 }
 
-/* Bouton outline */
+
 .invader-header .btn-outline {
   background: transparent;
   color: #FFFFFF;
@@ -816,7 +813,7 @@ section {
   box-shadow: 0 0 12px #ff1177, inset 0 0 6px #ff1177;
 }
 
-/* — RESPONSIVE — */
+
 @media (max-width: 768px) {
   .invader-header {
     flex-direction: column;

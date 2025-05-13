@@ -1,5 +1,5 @@
 <?php
-// login.php
+
 $pageTitle = "Connexion";
 require_once 'includes/header.php';
 ?>
@@ -28,7 +28,7 @@ require_once 'includes/header.php';
 <?php require_once 'includes/footer.php'; ?>
 
 <style>
-  /* Animated neon gradient background */
+  
   .login-bg {
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
@@ -43,7 +43,7 @@ require_once 'includes/header.php';
     100% { background-position: 0% 50%; }
   }
 
-/* Login page styles */
+
 .auth-container {
   display: flex;
   justify-content: center;

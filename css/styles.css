@@ -713,3 +713,123 @@ section {
     }
   }
   
+
+
+  /* — HEADER CONTAINER — */
+.invader-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--space-md);
+  height: 72px;
+  background: linear-gradient(90deg, #2c003e 0%, #58114b 50%, #2c003e 100%);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+}
+
+/* — LOGO — */
+.invader-header .header-left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+.invader-header .header-left .fa-gamepad {
+  font-size: 1.75rem;
+  color: #ff1177;
+  filter: drop-shadow(0 0 6px #ff1177);
+}
+.invader-header .header-left .logo-text {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.5rem;
+  color: #FFFFFF;
+  letter-spacing: 1px;
+  filter: drop-shadow(0 0 6px #ff1177);
+}
+
+/* — NAVIGATION — */
+.invader-header .main-nav ul {
+  display: flex;
+  align-items: center;
+  gap: var(--space-lg);
+}
+.invader-header .main-nav a {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-md);
+  color: rgba(255,255,255,0.85);
+  padding: var(--space-xs) var(--space-sm);
+  position: relative;
+  transition: color 0.2s;
+}
+.invader-header .main-nav a:hover {
+  color: #FFFFFF;
+}
+.invader-header .main-nav li.active a {
+  color: #FFFFFF;
+}
+.invader-header .main-nav li.active a::after {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: #ff1177;
+  border-radius: 2px;
+  filter: drop-shadow(0 0 4px #ff1177);
+}
+
+/* — BOUTONS — */
+.invader-header .header-right .btn {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-md);
+  padding: var(--space-sm) var(--space-lg);
+  border-radius: var(--radius-pill);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.2s;
+}
+
+/* Bouton rose néon */
+.invader-header .btn-primary {
+  background: #ff1177;
+  color: #FFFFFF;
+  box-shadow: 0 0 8px #ff1177, 0 0 16px #ff1177;
+  border: none;
+}
+.invader-header .btn-primary:hover {
+  background: #e60f68;
+  box-shadow: 0 0 12px #ff1177, inset 0 0 6px #ff1177;
+}
+
+/* Bouton outline */
+.invader-header .btn-outline {
+  background: transparent;
+  color: #FFFFFF;
+  border: 2px solid #ff1177;
+  box-shadow: 0 0 8px #ff1177;
+}
+.invader-header .btn-outline:hover {
+  background: #ff1177;
+  color: #0e0e0e;
+  box-shadow: 0 0 12px #ff1177, inset 0 0 6px #ff1177;
+}
+
+/* — RESPONSIVE — */
+@media (max-width: 768px) {
+  .invader-header {
+    flex-direction: column;
+    height: auto;
+    padding: var(--space-sm);
+  }
+  .invader-header .header-left {
+    margin-bottom: var(--space-sm);
+  }
+  .invader-header .main-nav ul {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-sm);
+  }
+}

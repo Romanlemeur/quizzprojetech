@@ -1,49 +1,54 @@
-<div class="container">
-    <div class="auth-container">
-        <div class="auth-card card">
-            <div class="auth-header">
-                <h1>Login</h1>
-                <p>Enter your credentials to access your account</p>
-            </div>
-            
-            <?php if (session()->getFlashdata('error')): ?>
-                <div class="alert alert-danger">
-                    <?= session()->getFlashdata('error') ?>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">Connexion</h3>
                 </div>
-            <?php endif; ?>
-            
-            <?php if (session()->getFlashdata('message')): ?>
-                <div class="alert alert-success">
-                    <?= session()->getFlashdata('message') ?>
-                </div>
-            <?php endif; ?>
-            
-            <?= form_open('login') ?>
-                <input type="hidden" name="redirect" value="<?= $redirect ?>">
-                
-                <div class="form-group">
-                    <label for="email" class="form-label">Email</label>
-                    <input type="email" id="email" name="email" class="form-control" value="<?= old('email') ?>" required>
-                    <?php if (isset($validation) && $validation->hasError('email')): ?>
-                        <div class="form-error"><?= $validation->getError('email') ?></div>
+                <div class="card-body">
+                    <!-- Affichage des erreurs -->
+                    <?php if (session()->has('error')): ?>
+                        <div class="alert alert-danger">
+                            <?= session('error') ?>
+                        </div>
                     <?php endif; ?>
-                </div>
-                
-                <div class="form-group">
-                    <label for="password" class="form-label">Password</label>
-                    <input type="password" id="password" name="password" class="form-control" required>
-                    <?php if (isset($validation) && $validation->hasError('password')): ?>
-                        <div class="form-error"><?= $validation->getError('password') ?></div>
+                    
+                    <?php if (session()->has('message')): ?>
+                        <div class="alert alert-success">
+                            <?= session('message') ?>
+                        </div>
                     <?php endif; ?>
+                    
+                    <!-- Formulaire de connexion -->
+                    <form action="<?= site_url('login') ?>" method="post">
+                        <!-- Champ caché pour la redirection -->
+                        <?php if (!empty($redirect)): ?>
+                            <input type="hidden" name="redirect" value="<?= htmlspecialchars($redirect) ?>">
+                        <?php endif; ?>
+                        
+                        <div class="form-group mb-3">
+                            <label for="email">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" value="<?= old('email') ?>" required>
+                            <?php if (isset($validation) && $validation->hasError('email')): ?>
+                                <small class="text-danger"><?= $validation->getError('email') ?></small>
+                            <?php endif; ?>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label for="password">Mot de passe</label>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                            <?php if (isset($validation) && $validation->hasError('password')): ?>
+                                <small class="text-danger"><?= $validation->getError('password') ?></small>
+                            <?php endif; ?>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary w-100">Se connecter</button>
+                    </form>
+                    
+                    <div class="mt-3 text-center">
+                        <p>Pas encore inscrit? <a href="<?= site_url('register') ?>">Créer un compte</a></p>
+                    </div>
                 </div>
-                
-                <div class="form-group">
-                    <button type="submit" class="btn btn-primary" style="width: 100%">Login</button>
-                </div>
-            <?= form_close() ?>
-            
-            <div class="auth-footer">
-                <p>Don't have an account? <a href="<?= base_url('register') ?>">Register here</a></p>
             </div>
         </div>
     </div>

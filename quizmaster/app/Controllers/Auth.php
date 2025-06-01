@@ -18,7 +18,7 @@ class Auth extends BaseController
 
     public function login()
     {
-        // If already logged in, redirect to home
+        // Si déjà connecté, redirection
         if (is_logged_in()) {
             return redirect()->to('/');
         }
@@ -26,7 +26,8 @@ class Auth extends BaseController
         $data = [
             'title' => 'Login',
             'validation' => \Config\Services::validation(),
-            'redirect' => $this->request->getGet('redirect') ?? ''
+            'redirect' => $this->request->getGet('redirect') ?? '',
+            'error' => session()->getFlashdata('error') // Pour afficher les erreurs de connexion
         ];
 
         return view('templates/header', $data)
@@ -42,33 +43,40 @@ class Auth extends BaseController
         ];
 
         if (!$this->validate($rules)) {
-            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+            return redirect()->back()->withInput()->with('error', 'Veuillez remplir tous les champs correctement');
         }
 
         $email = $this->request->getPost('email');
         $password = $this->request->getPost('password');
         $redirect = $this->request->getPost('redirect') ?? '';
 
-        // Check user
+        // Vérif de l'utilisateur
         $user = $this->userModel->where('email', $email)->first();
         
         if (!$user || !password_verify($password, $user['password'])) {
-            return redirect()->back()->withInput()->with('error', 'Invalid login credentials');
+            return redirect()->back()->withInput()->with('error', 'Email ou mot de passe incorrect');
         }
 
-        // Set session data
-        $userData = [
+        // TODO: ajouter option "se souvenir de moi"?
+        
+        // On met les infos en session
+        $user_data = [
             'user_id' => $user['id'],
             'username' => $user['username'],
             'email' => $user['email'],
+            'role' => $user['role'] ?? 'user',
             'logged_in' => true
         ];
 
-        $this->session->set($userData);
+        $this->session->set($user_data);
         
-        // Redirect based on "redirect" parameter or default to home
+        // Redirection
         if (!empty($redirect)) {
             return redirect()->to($redirect);
+        }
+        
+        if ($user_data['role'] === 'admin') {
+            return redirect()->to('admin/dashboard');
         }
         
         return redirect()->to('/');
@@ -76,14 +84,16 @@ class Auth extends BaseController
 
     public function register()
     {
-        // If already logged in, redirect to home
+        // Si déjà connecté, redirection
         if (is_logged_in()) {
             return redirect()->to('/');
         }
 
         $data = [
             'title' => 'Register',
-            'validation' => \Config\Services::validation()
+            'validation' => \Config\Services::validation(),
+            'error' => session()->getFlashdata('error'),
+            'success' => session()->getFlashdata('success')
         ];
 
         return view('templates/header', $data)
@@ -94,25 +104,41 @@ class Auth extends BaseController
     public function attemptRegister()
     {
         $rules = [
-            'username' => 'required|min_length[3]|is_unique[users.username]',
-            'email' => 'required|valid_email|is_unique[users.email]',
+            'username' => [
+                'rules' => 'required|min_length[3]|is_unique[users.username]',
+                'errors' => [
+                    'is_unique' => 'Ce nom d\'utilisateur est déjà pris'
+                ]
+            ],
+            'email' => [
+                'rules' => 'required|valid_email|is_unique[users.email]',
+                'errors' => [
+                    'is_unique' => 'Cet email est déjà utilisé'
+                ]
+            ],
             'password' => 'required|min_length[6]',
             'confirm_password' => 'required|matches[password]'
         ];
 
         if (!$this->validate($rules)) {
-            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+            // Pour capturer l'erreur spécifique
+            $errors = $this->validator->getErrors();
+            $errorMessage = reset($errors); // Prend la première erreur
+            
+            return redirect()->back()->withInput()->with('error', $errorMessage);
         }
 
         $data = [
             'username' => $this->request->getPost('username'),
             'email' => $this->request->getPost('email'),
-            'password' => password_hash($this->request->getPost('password'), PASSWORD_DEFAULT)
+            'password' => password_hash($this->request->getPost('password'), PASSWORD_DEFAULT),
+            'role' => 'user', // Tous les nouveaux sont des users normaux
+            'created_at' => date('Y-m-d H:i:s')
         ];
 
         $this->userModel->insert($data);
         
-        return redirect()->to('login')->with('message', 'Registration successful. You can now login.');
+        return redirect()->to('login')->with('message', 'Inscription réussie! Vous pouvez maintenant vous connecter.');
     }
 
     public function logout()
@@ -123,7 +149,11 @@ class Auth extends BaseController
 
     public function profile()
     {
-        $userId = session()->get('user_id');
+        if (!is_logged_in()) {
+            return redirect()->to('login?redirect=profile');
+        }
+
+        $userId = $this->session->get('user_id');
         $user = $this->userModel->find($userId);
         
         if (!$user) {
@@ -131,13 +161,55 @@ class Auth extends BaseController
         }
 
         $data = [
-            'title' => 'My Profile',
+            'title' => 'Mon Profil',
             'user' => $user,
-            'history' => $this->scoreModel->getUserQuizHistory($userId)
+            'history' => $this->userModel->getUserQuizHistory($userId)
         ];
 
         return view('templates/header', $data)
             . view('auth/profile')
             . view('templates/footer');
+    }
+    
+    // Pour ajouter un admin (uniquement accessible aux admins)
+    public function addAdmin()
+    {
+        if (!is_logged_in() || $this->session->get('role') !== 'admin') {
+            return redirect()->to('/');
+        }
+        
+        if ($this->request->getMethod() !== 'post') {
+            $data = [
+                'title' => 'Ajouter un administrateur',
+                'validation' => \Config\Services::validation(),
+            ];
+            
+            return view('templates/admin_header', $data)
+                . view('admin/add_admin')
+                . view('templates/admin_footer');
+        }
+        
+        // Validation 
+        $rules = [
+            'username' => 'required|min_length[3]|is_unique[users.username]',
+            'email' => 'required|valid_email|is_unique[users.email]',
+            'password' => 'required|min_length[6]'
+        ];
+        
+        if (!$this->validate($rules)) {
+            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+        }
+        
+        // Création admin
+        $data = [
+            'username' => $this->request->getPost('username'),
+            'email' => $this->request->getPost('email'),
+            'password' => password_hash($this->request->getPost('password'), PASSWORD_DEFAULT),
+            'role' => 'admin'
+        ];
+        
+        $this->userModel->insert($data);
+        
+        return redirect()->to('admin/users')->with('message', 'Administrateur ajouté avec succès');
     }
 }

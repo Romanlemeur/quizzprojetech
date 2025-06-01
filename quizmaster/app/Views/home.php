@@ -4,7 +4,7 @@
             <h1>Test Your Knowledge</h1>
             <p>Challenge yourself with our interactive quizzes on various topics. Compete with others and see your name on the leaderboard!</p>
             <div class="hero-actions">
-                <?php if (is_logged_in()): ?>
+                <?php if ($isLoggedIn): ?>
                     <a href="<?= base_url('quiz') ?>" class="btn btn-primary">Start Quiz</a>
                 <?php else: ?>
                     <a href="<?= base_url('login') ?>" class="btn btn-primary">Login to Start</a>
@@ -15,62 +15,75 @@
     </div>
 </section>
 
-<section class="features">
+<!-- Alerte pour les quiz en direct -->
+<?php if (isset($liveQuiz) && $liveQuiz): ?>
+<div class="alert alert-warning mt-4">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h4 class="alert-heading">Quiz en direct!</h4>
+            <p class="mb-0">Le quiz "<?= $liveQuiz['title'] ?>" est actuellement en direct. Rejoignez-le maintenant!</p>
+        </div>
+        <a href="<?= site_url('quiz/live') ?>" class="btn btn-warning">Rejoindre</a>
+    </div>
+</div>
+<?php endif; ?>
+
+<section class="categories-populaires">
     <div class="container">
-        <h2 class="section-title">Why Choose Our Platform?</h2>
-        <div class="features-grid">
-            <div class="feature-card card">
-                <div class="feature-icon">
-                    <i class="fas fa-brain"></i>
+        <h2 class="section-title">Catégories Populaires</h2>
+        <div class="categories-grid">
+            <?php foreach ($categories as $category): ?>
+                <div class="category-card card">
+                    <h3><?= $category['name'] ?></h3>
+                    <p><?= $category['description'] ?></p>
+                    <a href="<?= base_url('quiz/category/' . $category['id']) ?>" class="btn btn-primary">Voir Quiz</a>
                 </div>
-                <h3>Challenge Yourself</h3>
-                <p>Test your knowledge on various topics with our diverse collection of quizzes.</p>
-            </div>
-            <div class="feature-card card">
-                <div class="feature-icon">
-                    <i class="fas fa-trophy"></i>
-                </div>
-                <h3>Compete with Others</h3>
-                <p>See how you stack up against others on our leaderboard and earn bragging rights.</p>
-            </div>
-            <div class="feature-card card">
-                <div class="feature-icon">
-                    <i class="fas fa-graduation-cap"></i>
-                </div>
-                <h3>Learn New Things</h3>
-                <p>Expand your knowledge while having fun with our educational quizzes.</p>
-            </div>
-            <div class="feature-card card">
-                <div class="feature-icon">
-                    <i class="fas fa-mobile-alt"></i>
-                </div>
-                <h3>Play Anywhere</h3>
-                <p>Enjoy our quizzes on any device, whether you're at home or on the go.</p>
-            </div>
+            <?php endforeach; ?>
         </div>
     </div>
 </section>
 
-<section class="categories">
+<section class="quizz-du-moment">
     <div class="container">
-        <h2 class="section-title">Quiz Categories</h2>
-        <div class="categories-grid">
-            <?php if (empty($categories)): ?>
-                <p>No categories available yet.</p>
-            <?php else: ?>
-                <?php foreach ($categories as $category): ?>
-                    <div class="category-card card">
-                        <h3><?= $category['name'] ?></h3>
-                        <p><?= $category['description'] ?></p>
-                        <?php 
-                        $categoryModel = new \App\Models\CategoryModel();
-                        $quizCount = $categoryModel->getQuizCount($category['id']); 
-                        ?>
-                        <p class="quiz-count"><?= $quizCount ?> <?= ($quizCount == 1) ? 'Quiz' : 'Quizzes' ?></p>
-                        <a href="<?= base_url('quiz/category/' . $category['id']) ?>" class="btn btn-primary">Start Quiz</a>
-                    </div>
-                <?php endforeach; ?>
-            <?php endif; ?>
+        <h2 class="section-title">Quizz du Moment</h2>
+        <div class="quiz-grid">
+            <?php foreach ($currentQuizzes as $quiz): ?>
+                <div class="quiz-card card">
+                    <h3><?= $quiz['title'] ?></h3>
+                    <p><?= $quiz['description'] ?></p>
+                    <a href="<?= base_url('quiz/start/' . $quiz['id']) ?>" class="btn btn-primary">Jouer</a>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+</section>
+
+<!-- Comment ça marche -->
+<section class="how-it-works">
+    <div class="container">
+        <h2 class="section-title">Comment ça marche?</h2>
+        <div class="steps-grid">
+            <div class="step-card card">
+                <div class="card-body">
+                    <i class="fas fa-user-plus fa-3x mb-3 text-primary"></i>
+                    <h3>1. Créez un compte</h3>
+                    <p>Inscrivez-vous pour accéder à tous les quiz et suivre vos progrès.</p>
+                </div>
+            </div>
+            <div class="step-card card">
+                <div class="card-body">
+                    <i class="fas fa-search fa-3x mb-3 text-primary"></i>
+                    <h3>2. Choisissez un quiz</h3>
+                    <p>Parcourez nos catégories et trouvez le quiz qui vous intéresse.</p>
+                </div>
+            </div>
+            <div class="step-card card">
+                <div class="card-body">
+                    <i class="fas fa-trophy fa-3x mb-3 text-primary"></i>
+                    <h3>3. Gagnez des points</h3>
+                    <p>Répondez correctement aux questions et montez dans le classement!</p>
+                </div>
+            </div>
         </div>
     </div>
 </section>
@@ -78,38 +91,31 @@
 <section class="leaderboard-preview">
     <div class="container">
         <div class="section-header">
-            <h2 class="section-title">Top Performers</h2>
-            <a href="<?= base_url('leaderboard') ?>" class="btn btn-outline">View Full Leaderboard</a>
+            <h2 class="section-title">Meilleurs Joueurs</h2>
+            <a href="<?= base_url('leaderboard') ?>" class="btn btn-outline">Voir le classement complet</a>
         </div>
         <div class="card">
             <table class="leaderboard-table">
                 <thead>
                     <tr>
-                        <th>Rank</th>
-                        <th>Player</th>
+                        <th>Rang</th>
+                        <th>Joueur</th>
                         <th>Quiz</th>
                         <th>Score</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <?php if (empty($leaderboard)): ?>
+                    <?php if (empty($topPlayers)): ?>
                         <tr>
-                            <td colspan="4" style="text-align: center;">No scores yet. Be the first to take a quiz!</td>
+                            <td colspan="4" class="text-center">Aucun score disponible.</td>
                         </tr>
                     <?php else: ?>
-                        <?php foreach ($leaderboard as $index => $entry): ?>
-                            <?php 
-                            $rank = $index + 1;
-                            $rankClass = "rank-badge";
-                            if ($rank <= 3) {
-                                $rankClass .= " rank-" . $rank;
-                            }
-                            ?>
+                        <?php foreach ($topPlayers as $index => $player): ?>
                             <tr>
-                                <td><span class="<?= $rankClass ?>"><?= $rank ?></span></td>
-                                <td><?= $entry['username'] ?></td>
-                                <td><?= $entry['quiz_title'] ?></td>
-                                <td class="user-score"><?= $entry['score'] ?></td>
+                                <td><span class="rank-badge rank-<?= $index < 3 ? ($index + 1) : '' ?>"><?= $index + 1 ?></span></td>
+                                <td><?= $player['username'] ?></td>
+                                <td><?= $player['quiz_title'] ?></td>
+                                <td class="user-score"><?= $player['score'] ?></td>
                             </tr>
                         <?php endforeach; ?>
                     <?php endif; ?>

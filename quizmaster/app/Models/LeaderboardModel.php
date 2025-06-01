@@ -6,41 +6,65 @@ use CodeIgniter\Model;
 
 class LeaderboardModel extends Model
 {
-    protected $table = 'user_scores';
-    
-    /**
-     * Get top scores for all quizzes
-     * 
-     * @param int $limit
-     * @return array
-     */
-    public function getTopScores($limit = 10)
+    // Récupérer le classement global
+    public function getGlobalLeaderboard($limit = null)
     {
-        return $this->select('user_scores.*, users.username, quizzes.title as quiz_title, quizzes.id as quiz_id')
-                    ->join('users', 'users.id = user_scores.user_id')
-                    ->join('quizzes', 'quizzes.id = user_scores.quiz_id')
-                    ->orderBy('user_scores.score', 'DESC')
-                    ->orderBy('user_scores.completed_at', 'ASC')
-                    ->limit($limit)
-                    ->findAll();
+        $db = \Config\Database::connect();
+        
+        // Vérifier si la table 'scores' existe
+        $scoresTableExists = $db->tableExists('scores');
+        
+        if ($scoresTableExists) {
+            $builder = $db->table('scores')
+                        ->select('scores.id, scores.score, scores.completed_at, users.username, quizzes.title as quiz_title')
+                        ->join('users', 'users.id = scores.user_id')
+                        ->join('quizzes', 'quizzes.id = scores.quiz_id')
+                        ->orderBy('scores.score', 'DESC')
+                        ->orderBy('scores.completed_at', 'ASC');
+        } else {
+            // Utiliser la table user_scores à la place
+            $builder = $db->table('user_scores')
+                        ->select('user_scores.id, user_scores.score, user_scores.completed_at, users.username, quizzes.title as quiz_title')
+                        ->join('users', 'users.id = user_scores.user_id')
+                        ->join('quizzes', 'quizzes.id = user_scores.quiz_id')
+                        ->where('user_scores.is_live', 0) // uniquement les parties normales
+                        ->orderBy('user_scores.score', 'DESC')
+                        ->orderBy('user_scores.completed_at', 'ASC');
+        }
+        
+        if ($limit !== null) {
+            $builder->limit($limit);
+        }
+        
+        return $builder->get()->getResultArray();
     }
     
-    /**
-     * Get top scores for a specific quiz
-     * 
-     * @param int $quizId
-     * @param int $limit
-     * @return array
-     */
-    public function getTopScoresByQuiz($quizId, $limit = 10)
+    // Récupère le classement pour un quiz spécifique
+    public function getQuizLeaderboard($quiz_id, $limit = 10)
     {
-        return $this->select('user_scores.*, users.username, quizzes.title as quiz_title, quizzes.id as quiz_id')
-                    ->join('users', 'users.id = user_scores.user_id')
-                    ->join('quizzes', 'quizzes.id = user_scores.quiz_id')
-                    ->where('user_scores.quiz_id', $quizId)
-                    ->orderBy('user_scores.score', 'DESC')
-                    ->orderBy('user_scores.completed_at', 'ASC')
-                    ->limit($limit)
-                    ->findAll();
+        $db = \Config\Database::connect();
+        
+        // Vérifier si la table 'scores' existe
+        $scoresTableExists = $db->tableExists('scores');
+        
+        if ($scoresTableExists) {
+            $builder = $db->table('scores')
+                        ->select('users.id, users.username, scores.score, scores.completed_at')
+                        ->join('users', 'users.id = scores.user_id')
+                        ->where('scores.quiz_id', $quiz_id)
+                        ->orderBy('scores.score', 'DESC');
+        } else {
+            // Utiliser la table user_scores à la place
+            $builder = $db->table('user_scores')
+                        ->select('users.id, users.username, user_scores.score, user_scores.completed_at')
+                        ->join('users', 'users.id = user_scores.user_id')
+                        ->where('user_scores.quiz_id', $quiz_id)
+                        ->where('user_scores.is_live', 0) // uniquement les parties normales
+                        ->orderBy('user_scores.score', 'DESC');
+        }
+        
+        $builder->limit($limit);
+        
+        return $builder->get()->getResultArray();
     }
 }

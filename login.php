@@ -1,102 +1,104 @@
 <?php
+// Page de connexion pour le site principal (hors CodeIgniter)
+session_start();
 
-$pageTitle = "Connexion";
-require_once 'includes/header.php';
+// Redirection si déjà connecté
+if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
+    header('Location: index.php');
+    exit;
+}
+
+$error = '';
+
+// Traitement de la connexion
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // TODO: ajouter validation et nettoyage des entrées
+    $email = $_POST['email'] ?? '';
+    $password = $_POST['password'] ?? '';
+    
+    if (empty($email) || empty($password)) {
+        $error = 'Veuillez remplir tous les champs';
+    } else {
+        // Connexion à la BDD
+        require_once 'includes/db_connect.php';
+        
+        try {
+            // Récupérer l'utilisateur par email
+            $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ?");
+            $stmt->execute([$email]);
+            $user = $stmt->fetch();
+            
+            if ($user && password_verify($password, $user['password'])) {
+                // Connexion réussie
+                $_SESSION['user_id'] = $user['id'];
+                $_SESSION['username'] = $user['username'];
+                $_SESSION['role'] = $user['role'] ?? 'user';
+                $_SESSION['logged_in'] = true;
+                
+                // Redirection
+                if (isset($_POST['redirect']) && !empty($_POST['redirect'])) {
+                    header('Location: ' . $_POST['redirect']);
+                } else {
+                    header('Location: index.php');
+                }
+                exit;
+            } else {
+                $error = 'Email ou mot de passe incorrect';
+            }
+        } catch (PDOException $e) {
+            $error = 'Erreur de connexion à la base de données';
+            // Debug
+            // echo $e->getMessage();
+        }
+    }
+}
+
+// Récupérer la redirection éventuelle
+$redirect = $_GET['redirect'] ?? '';
+
+// Inclure l'entête
+include 'includes/header.php';
 ?>
 
-<div class="login-bg"></div>
-<div class="auth-container">
-  <div class="auth-card">
-    <h2 class="auth-header neon-text">Se connecter</h2>
-    <form method="POST" action="login.php">
-      <div class="form-group">
-        <label class="form-label" for="email">Email</label>
-        <input class="form-control" type="email" id="email" name="email" placeholder="votre.email@exemple.com" required>
-      </div>
-      <div class="form-group">
-        <label class="form-label" for="password">Mot de passe</label>
-        <input class="form-control" type="password" id="password" name="password" placeholder="••••••••" required>
-      </div>
-      <button type="submit" class="btn btn-primary">Se connecter</button>
-    </form>
-    <div class="auth-footer">
-      Pas encore de compte ? <a href="register.php">Inscrivez-vous</a>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">Connexion</h3>
+                </div>
+                <div class="card-body">
+                    <?php if (!empty($error)): ?>
+                        <div class="alert alert-danger">
+                            <?= $error ?>
+                        </div>
+                    <?php endif; ?>
+                    
+                    <form action="login.php" method="post">
+                        <?php if (!empty($redirect)): ?>
+                            <input type="hidden" name="redirect" value="<?= htmlspecialchars($redirect) ?>">
+                        <?php endif; ?>
+                        
+                        <div class="form-group mb-3">
+                            <label for="email">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label for="password">Mot de passe</label>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary w-100">Se connecter</button>
+                    </form>
+                    
+                    <div class="mt-3 text-center">
+                        <p>Pas encore inscrit? <a href="register.php">Créer un compte</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
 
-<?php require_once 'includes/footer.php'; ?>
-
-<style>
-  
-  .login-bg {
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: linear-gradient(45deg,rgb(106, 13, 111),rgb(211, 99, 242),rgb(126, 86, 247),rgb(141, 2, 125));
-    background-size: 400% 400%;
-    animation: neonGradient 15s ease infinite;
-    z-index: -1;
-  }
-  @keyframes neonGradient {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-  }
-
-
-.auth-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 80vh;
-  padding: 30px;
-}
-.auth-card {
-  background: rgba(0,0,0,0.8);
-  padding: 30px 30px;
-  border-radius: 15px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.6);
-  width: 100%;
-  max-width: 400px;
-}
-.auth-header {
-  text-align: center;
-  margin-bottom: var(--space-lg);
-  font-family: 'Orbitron', sans-serif;
-}
-.form-group {
-  margin-bottom: var(--space-md);
-}
-.form-label {
-  display: block;
-  margin-bottom: var(--space-xs);
-  color: var(--color-text-secondary);
-}
-.form-control {
-  width: 100%;
-  padding: var(--space-sm) var(--space-md);
-  background: #111;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  color: #fff;
-}
-.btn-primary {
-  width: 100%;
-  padding: var(--space-md);
-  font-size: var(--font-size-md);
-  text-transform: uppercase;
-  margin-top: var(--space-md);
-}
-.auth-footer {
-  text-align: center;
-  margin-top: var(--space-md);
-  color: var(--color-text-secondary);
-}
-.auth-footer a {
-  color: var(--color-primary);
-  text-decoration: none;
-}
-.auth-footer a:hover {
-  text-decoration: underline;
-}
-</style>
+<?php include 'includes/footer.php'; ?>

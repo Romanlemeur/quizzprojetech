@@ -5,58 +5,79 @@ namespace Config;
 // Create a new instance of our RouteCollection class.
 $routes = Services::routes();
 
-/*
- * --------------------------------------------------------------------
- * Router Setup
- * --------------------------------------------------------------------
- */
+// Configuration du routeur
 $routes->setDefaultNamespace('App\Controllers');
 $routes->setDefaultController('Home');
 $routes->setDefaultMethod('index');
 $routes->setTranslateURIDashes(false);
 $routes->set404Override();
-// The Auto Routing (Legacy) is very dangerous. It is easy to create vulnerable apps
-// where controller filters or CSRF protection are bypassed.
-// If you don't want to define all routes, please use the Auto Routing (Improved).
-// Set `$autoRoutesImproved` to true in `app/Config/Feature.php` and set the following to true.
 $routes->setAutoRoute(false);
 
-/*
- * --------------------------------------------------------------------
- * Route Definitions
- * --------------------------------------------------------------------
- */
-
-// We get a performance increase by specifying the default
-// route since we don't have to scan directories.
+// Routes principales du site
+// On définit chaque route manuellement pour plus de sécurité
 $routes->get('/', 'Home::index');
 $routes->get('quiz', 'Quiz::index');
+$routes->get('quiz/popular', 'Quiz::popular');
+$routes->get('quiz/example/(:segment)', 'Quiz::example/$1');
+$routes->get('quiz/example', 'Quiz::example');
 $routes->get('quiz/category/(:num)', 'Quiz::category/$1');
 $routes->get('quiz/start/(:num)', 'Quiz::start/$1');
 $routes->post('quiz/submit', 'Quiz::submit');
 $routes->get('quiz/result/(:num)/(:num)/(:num)/(:num)', 'Quiz::result/$1/$2/$3/$4');
 $routes->get('leaderboard', 'Leaderboard::index');
-$routes->get('leaderboard/filter/(:num)', 'Leaderboard::filter/$1');
+$routes->get('leaderboard/quiz/(:num)', 'Leaderboard::quizLeaderboard/$1');
+$routes->get('leaderboard/filter', 'Leaderboard::filter');
+$routes->get('profile', 'Leaderboard::profile');
+$routes->post('profile', 'Leaderboard::profile');
 $routes->get('login', 'Auth::login');
 $routes->post('login', 'Auth::attemptLogin');
 $routes->get('register', 'Auth::register');
 $routes->post('register', 'Auth::attemptRegister');
 $routes->get('logout', 'Auth::logout');
-$routes->get('profile', 'Auth::profile', ['filter' => 'auth']);
+$routes->get('account', 'Auth::profile');
 
-/*
- * --------------------------------------------------------------------
- * Additional Routing
- * --------------------------------------------------------------------
- *
- * There will often be times that you need additional routing and you
- * need it to be able to override any defaults in this file. Environment
- * based routes is one such time. require() additional route files here
- * to make that happen.
- *
- * You will have access to the $routes object within that file without
- * needing to reload it.
- */
+// Routes pour les quiz en direct
+$routes->get('quiz/live', 'Quiz::joinLive');
+$routes->get('quiz/live/(:num)', 'Quiz::livePage/$1');
+$routes->get('quiz/get-current-question', 'Quiz::getCurrentQuestion');
+$routes->post('quiz/submit-live-answer', 'Quiz::submitLiveAnswer');
+$routes->get('quiz/get-live-leaderboard', 'Quiz::getLiveLeaderboard');
+
+// Routes pour l'administration - protégées par le middleware Admin
+$routes->group('admin', ['filter' => 'admin'], function($routes) {
+    // Dashboard
+    $routes->get('', 'Admin::dashboard');
+    $routes->get('dashboard', 'Admin::dashboard');
+    
+    // Gestion des quiz
+    $routes->get('quizzes', 'Admin::quizzes');
+    $routes->get('quiz/create', 'Admin::createQuiz');
+    $routes->post('quiz/store', 'Admin::storeQuiz');
+    $routes->get('quiz/edit/(:num)', 'Admin::editQuiz/$1');
+    $routes->post('quiz/update/(:num)', 'Admin::updateQuiz/$1');
+    $routes->get('quiz/delete/(:num)', 'Admin::deleteQuiz/$1');
+    
+    // Quiz en direct
+    $routes->get('quiz/start-live/(:num)', 'Admin::startLiveQuiz/$1');
+    $routes->get('quiz/stop-live/(:num)', 'Admin::stopLiveQuiz/$1');
+    $routes->get('live', 'Admin::liveQuiz');
+    $routes->post('live/next-question', 'Admin::nextQuestion');
+    $routes->get('live/participants', 'Admin::getLiveParticipants');
+    $routes->post('live/update-score', 'Admin::updateParticipantScore');
+    
+    // Gestion des utilisateurs
+    $routes->get('users', 'Admin::users');
+    $routes->get('user/set-admin/(:num)', 'Admin::setAdmin/$1');
+    $routes->get('user/remove-admin/(:num)', 'Admin::removeAdmin/$1');
+    $routes->get('admin/add', 'Auth::addAdmin');
+    $routes->post('admin/add', 'Auth::addAdmin');
+    
+    // Statistiques
+    $routes->get('statistics', 'Admin::statistics');
+});
+
+// TODO: ajouter des routes pour la gestion des catégories
+
 if (is_file(APPPATH . 'Config/' . ENVIRONMENT . '/Routes.php')) {
     require APPPATH . 'Config/' . ENVIRONMENT . '/Routes.php';
 }

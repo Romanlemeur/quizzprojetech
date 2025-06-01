@@ -11,6 +11,7 @@ class QuestionModel extends Model
     protected $useAutoIncrement = true;
     protected $returnType = 'array';
     
+    // champs qu'on peut modifier
     protected $allowedFields = ['quiz_id', 'question_text', 'question_order', 'points'];
     
     protected $useTimestamps = false;

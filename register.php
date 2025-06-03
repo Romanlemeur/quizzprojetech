@@ -46,15 +46,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     // Inscription de l'utilisateur
                     $hashed_password = password_hash($password, PASSWORD_DEFAULT);
                     $stmt = $pdo->prepare("INSERT INTO users (username, email, password, role, created_at) VALUES (?, ?, ?, 'user', NOW())");
-                    $stmt->execute([$username, $email, $hashed_password]);
-                    
-                    $success = 'Inscription réussie! Vous pouvez maintenant vous connecter.';
+                    if ($stmt->execute()) {
+                        $success = "Inscription réussie ! Vous pouvez maintenant vous connecter.";
+                    } else {
+                        $error = "Erreur lors de l'inscription.";
+                    }
                 }
             }
         } catch (PDOException $e) {
             $error = 'Erreur lors de l\'inscription';
-            // Pour debug
-            // echo $e->getMessage();
         }
     }
 }

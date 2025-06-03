@@ -1,0 +1,11 @@
+CI_ENVIRONMENT = development
+
+app.baseURL = 'http://localhost/quizzprojetech/quizmaster/public/'
+
+database.default.hostname = localhost
+database.default.database = quizmaster
+database.default.username = root
+database.default.password = 
+database.default.DBDriver = MySQLi
+
+encryption.key = hex2bin:1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef 

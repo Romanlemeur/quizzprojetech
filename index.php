@@ -10,7 +10,7 @@ require_once 'includes/header.php';
             <p>Challenge yourself with our interactive quizzes on various topics. Compete with others and see your name on the leaderboard!</p>
             <div class="hero-actions">
                 <?php if (isLoggedIn()): ?>
-                    <a href="quiz.php" class="btn btn-primary">Start Quiz</a>
+                    <a href="quizmaster/public/quiz/popular" class="btn btn-primary">Start Quiz</a>
                 <?php else: ?>
                     <a href="login.php" class="btn btn-primary">Login to Start</a>
                     <a href="register.php" class="btn btn-outline">Register</a>
@@ -28,17 +28,17 @@ require_once 'includes/header.php';
             <div class="category-card card">
                 <h3>Science</h3>
                 <p>Quiz sur la physique, la chimie et la biologie.</p>
-                <a href="quizzexample.php" class="btn btn-primary">Voir Quiz</a>
+                <a href="quizmaster/public/quiz" class="btn btn-primary">Voir Quiz</a>
             </div>
             <div class="category-card card">
                 <h3>Histoire</h3>
                 <p>Explorez les grandes dates et personnages historiques.</p>
-                <a href="quizzexample.php" class="btn btn-primary">Voir Quiz</a>
+                <a href="quizmaster/public/quiz" class="btn btn-primary">Voir Quiz</a>
             </div>
             <div class="category-card card">
                 <h3>Cinéma</h3>
                 <p>Questions sur les films cultes et les réalisateurs.</p>
-                <a href="quizzexample.php" class="btn btn-primary">Voir Quiz</a>
+                <a href="quizmaster/public/quiz" class="btn btn-primary">Voir Quiz</a>
             </div>
         </div>
     </div>
@@ -52,17 +52,17 @@ require_once 'includes/header.php';
             <div class="quiz-card card">
                 <h3>Quiz Space</h3>
                 <p>Testez vos connaissances sur l'univers et les étoiles.</p>
-                <a href="quizzexample.php" class="btn btn-primary">Jouer</a>
+                <a href="quizmaster/public/quiz/popular" class="btn btn-primary">Jouer</a>
             </div>
             <div class="quiz-card card">
                 <h3>Quiz Food</h3>
                 <p>Tout savoir sur la gastronomie mondiale.</p>
-                <a href="quizzexample.php" class="btn btn-primary">Jouer</a>
+                <a href="quizmaster/public/quiz/popular" class="btn btn-primary">Jouer</a>
             </div>
             <div class="quiz-card card">
                 <h3>Quiz Tech</h3>
                 <p>Les dernières innovations et gadgets.</p>
-                <a href="quizzexample.php" class="btn btn-primary">Jouer</a>
+                <a href="quizmaster/public/quiz/popular" class="btn btn-primary">Jouer</a>
             </div>
         </div>
     </div>

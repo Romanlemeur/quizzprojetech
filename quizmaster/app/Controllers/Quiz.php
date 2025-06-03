@@ -67,36 +67,20 @@ class Quiz extends BaseController
             . view('templates/footer');
     }
 
-    public function start($quiz_id)
+    public function start($quizId)
     {
-        // Check si connecté
-        if (!is_logged_in()) {
-            return redirect()->to('login?redirect=quiz');
-        }
-
-        $quiz = $this->quizModel->find($quiz_id);
-
-        if (!$quiz) {
-            return redirect()->to('quiz');
-        }
-
-        $questions = $this->questionModel->where('quiz_id', $quiz_id)->orderBy('question_order', 'ASC')->findAll();
+        $quizModel = new QuizModel();
+        $quiz = $quizModel->getQuizWithQuestions($quizId);
         
-        // Récupérer toutes les options pour chaque question
-        foreach ($questions as &$q) {
-            $q['options'] = $this->optionModel->where('question_id', $q['id'])->orderBy('option_order', 'ASC')->findAll();
+        if (!$quiz) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('Quiz non trouvé');
+        }
+        
+        if (!$quiz['is_active']) {
+            return redirect()->to('/quiz')->with('error', 'Ce quiz n\'est pas disponible');
         }
 
-        $data = [
-            'title' => $quiz['title'],
-            'quiz' => $quiz,
-            'questions' => $questions,
-            'totalQuestions' => count($questions)
-        ];
-
-        return view('templates/header', $data)
-            . view('quiz/take_quiz')
-            . view('templates/footer');
+        return view('quiz/start', ['quiz' => $quiz]);
     }
 
     public function submit()
@@ -456,68 +440,5 @@ class Quiz extends BaseController
         ];
         
         return $jours[$jour_en] ?? 'Lundi'; // Par défaut lundi si non trouvé
-    }
-
-    // Méthode pour afficher un exemple de quiz
-    public function example($type = 'space')
-    {
-        // Rechercher un quiz avec un nom correspondant au type demandé
-        $quiz = $this->quizModel->where('title LIKE', "%$type%")->first();
-        
-        // Si aucun quiz correspondant n'est trouvé, prendre le premier quiz disponible
-        if (!$quiz) {
-            $quiz = $this->quizModel->first();
-            
-            // Si toujours aucun quiz, rediriger vers la liste des quiz
-            if (!$quiz) {
-                return redirect()->to('quiz')->with('error', 'Aucun quiz disponible');
-            }
-        }
-        
-        // Récupérer les questions de ce quiz
-        $questions = $this->questionModel->where('quiz_id', $quiz['id'])->findAll();
-        $formattedQuestions = [];
-        
-        foreach ($questions as $question) {
-            // Récupérer les options pour cette question
-            $options = $this->optionModel->where('question_id', $question['id'])->findAll();
-            
-            // Préparer les données dans le format attendu par la vue
-            $optionTexts = [];
-            $correctAnswer = '';
-            
-            foreach ($options as $option) {
-                $optionTexts[] = $option['option_text'];
-                if ($option['is_correct'] == 1) {
-                    $correctAnswer = $option['option_text'];
-                }
-            }
-            
-            $formattedQuestions[] = [
-                'text' => $question['question_text'],
-                'options' => $optionTexts,
-                'answer' => $correctAnswer
-            ];
-        }
-        
-        // Si aucune question n'est trouvée, créer une question par défaut
-        if (empty($formattedQuestions)) {
-            $formattedQuestions = [
-                [
-                    'text' => 'Question exemple pour ce quiz',
-                    'options' => ['Option A', 'Option B', 'Option C', 'Option D'],
-                    'answer' => 'Option A'
-                ]
-            ];
-        }
-        
-        $data = [
-            'title' => $quiz['title'],
-            'questions' => $formattedQuestions
-        ];
-        
-        return view('templates/header', $data)
-            . view('quiz/example')
-            . view('templates/footer');
     }
 }

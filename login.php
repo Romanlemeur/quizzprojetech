@@ -1,6 +1,7 @@
 <?php
 // Page de connexion pour le site principal (hors CodeIgniter)
 session_start();
+require_once 'includes/config.php';
 
 // Redirection si déjà connecté
 if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
@@ -12,13 +13,10 @@ $error = '';
 
 // Traitement de la connexion
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // TODO: ajouter validation et nettoyage des entrées
     $email = $_POST['email'] ?? '';
     $password = $_POST['password'] ?? '';
     
-    if (empty($email) || empty($password)) {
-        $error = 'Veuillez remplir tous les champs';
-    } else {
+    if (!empty($email) && !empty($password)) {
         // Connexion à la BDD
         require_once 'includes/db_connect.php';
         
@@ -47,8 +45,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         } catch (PDOException $e) {
             $error = 'Erreur de connexion à la base de données';
-            // Debug
-            // echo $e->getMessage();
         }
     }
 }

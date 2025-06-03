@@ -18,8 +18,6 @@ $routes->setAutoRoute(false);
 $routes->get('/', 'Home::index');
 $routes->get('quiz', 'Quiz::index');
 $routes->get('quiz/popular', 'Quiz::popular');
-$routes->get('quiz/example/(:segment)', 'Quiz::example/$1');
-$routes->get('quiz/example', 'Quiz::example');
 $routes->get('quiz/category/(:num)', 'Quiz::category/$1');
 $routes->get('quiz/start/(:num)', 'Quiz::start/$1');
 $routes->post('quiz/submit', 'Quiz::submit');
@@ -76,7 +74,26 @@ $routes->group('admin', ['filter' => 'admin'], function($routes) {
     $routes->get('statistics', 'Admin::statistics');
 });
 
-// TODO: ajouter des routes pour la gestion des catégories
+// Routes pour le système de quiz
+$routes->group('quiz', function($routes) {
+    $routes->get('/', 'Quiz::categories');
+    $routes->get('categories', 'Quiz::categories');
+    $routes->get('popular', 'Quiz::popular');
+    $routes->get('category/(:num)', 'Quiz::category/$1');
+    $routes->get('start/(:num)', 'Quiz::start/$1');
+    $routes->get('random', 'Quiz::random');
+    $routes->get('random/(:num)', 'Quiz::random/$1');
+    $routes->get('live', 'Quiz::live');
+    $routes->post('submit', 'Quiz::submit');
+    $routes->get('get-live-quiz', 'Quiz::getLiveQuiz');
+    $routes->get('get-live-leaderboard', 'Quiz::getLiveLeaderboard');
+});
+
+// Routes pour les catégories
+$routes->group('categories', function($routes) {
+    $routes->get('/', 'Quiz::categories');
+    $routes->get('(:num)', 'Quiz::category/$1');
+});
 
 if (is_file(APPPATH . 'Config/' . ENVIRONMENT . '/Routes.php')) {
     require APPPATH . 'Config/' . ENVIRONMENT . '/Routes.php';

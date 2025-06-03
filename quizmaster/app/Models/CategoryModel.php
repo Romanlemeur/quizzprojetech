@@ -25,13 +25,9 @@ class CategoryModel extends Model
     // Récupère les catégories avec le nombre de quiz
     public function getCategoriesWithQuizCount()
     {
-        $db = \Config\Database::connect();
-        // TODO: optimiser cette requête qui fait beaucoup de jointures
-        $builder = $db->table('categories');
-        $builder->select('categories.*, COUNT(quizzes.id) as quiz_count');
-        $builder->join('quizzes', 'quizzes.category_id = categories.id', 'left');
-        $builder->groupBy('categories.id');
-        
-        return $builder->get()->getResultArray();
+        return $this->select('categories.*, COUNT(quizzes.id) as quiz_count')
+                    ->join('quizzes', 'quizzes.category_id = categories.id', 'left')
+                    ->groupBy('categories.id')
+                    ->findAll();
     }
 }

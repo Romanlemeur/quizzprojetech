@@ -231,4 +231,19 @@ class ScoreModel extends Model
         
         return $query->getResultArray();
     }
+    
+    public function getTopScores($limit = 10, $category_id = null)
+    {
+        $builder = $this->select('user_scores.*, users.username, quizzes.title as quiz_title, categories.name as category_name')
+                        ->join('users', 'users.id = user_scores.user_id')
+                        ->join('quizzes', 'quizzes.id = user_scores.quiz_id')
+                        ->join('categories', 'categories.id = quizzes.category_id', 'left')
+                        ->orderBy('user_scores.score', 'DESC');
+        
+        if ($category_id) {
+            $builder->where('quizzes.category_id', $category_id);
+        }
+        
+        return $builder->limit($limit)->findAll();
+    }
 }

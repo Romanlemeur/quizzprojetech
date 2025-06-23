@@ -1,0 +1,189 @@
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideInUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Applied animations */
+.hero-content {
+    animation: fadeIn 1s ease;
+}
+
+.hero h1 {
+    animation: slideInUp 0.8s ease forwards;
+}
+
+.hero p {
+    animation: slideInUp 0.8s ease 0.2s forwards;
+    opacity: 0;
+    animation-fill-mode: forwards;
+}
+
+.hero-actions {
+    animation: slideInUp 0.8s ease 0.4s forwards;
+    opacity: 0;
+    animation-fill-mode: forwards;
+}
+
+.feature-card {
+    animation: fadeIn 0.8s ease;
+}
+
+.feature-icon {
+    transition: transform 0.3s ease;
+}
+
+.feature-card:hover .feature-icon {
+    transform: scale(1.1);
+}
+
+.option-item label {
+    transition: all 0.2s ease;
+}
+
+.option-item input[type="radio"]:checked + label {
+    animation: pulse 0.3s ease;
+}
+
+.btn {
+    transition: all 0.2s ease;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+}
+
+.card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.category-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.category-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-md);
+}
+
+/* Loading animation */
+.loading {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(0, 122, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: var(--color-primary);
+    animation: spin 1s ease-in-out infinite;
+}
+
+/* Progress bar animation */
+.progress-fill {
+    transition: width 0.5s ease;
+}
+
+/* Question transition */
+.question-container {
+    animation: fadeIn 0.5s ease;
+}
+
+/* Answer feedback animations */
+.option-correct {
+    background-color: var(--color-success) !important;
+    color: white !important;
+    animation: pulse 0.5s ease;
+}
+
+.option-incorrect {
+    background-color: var(--color-error) !important;
+    color: white !important;
+    animation: shake 0.5s ease;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+/* Mobile menu animation */
+.mobile-menu.active {
+    animation: slideInRight 0.3s ease forwards;
+}
+
+.mobile-menu-toggle.active span:nth-child(1) {
+    transform: rotate(45deg) translate(5px, 5px);
+}
+
+.mobile-menu-toggle.active span:nth-child(2) {
+    opacity: 0;
+}
+
+.mobile-menu-toggle.active span:nth-child(3) {
+    transform: rotate(-45deg) translate(7px, -6px);
+}
+
+/* Rank badge animations */
+.rank-badge {
+    transition: transform 0.3s ease;
+}
+
+.rank-1:hover, .rank-2:hover, .rank-3:hover {
+    transform: scale(1.2);
+}
+
+/* Form animations */
+.form-control {
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-control:focus {
+    box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.2);
+}
+
+/* Quiz result animations */
+.result-score {
+    animation: fadeIn 1s ease, pulse 2s ease 1s;
+}
+
+/* Social links animations */
+.social-links a {
+    transition: all 0.3s ease;
+}
+
+.social-links a:hover {
+    transform: translateY(-3px) rotate(8deg);
+}

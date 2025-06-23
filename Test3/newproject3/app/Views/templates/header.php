@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QuizMaster - <?= $title ?? 'Online Quiz Platform' ?></title>
-    <link rel="stylesheet" href="/quizzprojetech/css/styles.css">
+    <title>Bar Invader - <?= $title ?? 'Online Quiz Platform' ?></title>
+    <link rel="stylesheet" href="<?= base_url('css/styles.css') ?>">
     <link rel="stylesheet" href="<?= base_url('css/animations.css') ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-<body>
+<body class="<?= strpos(current_url(), 'quiz') !== false ? 'quiz-page' : '' ?>">
     <header class="site-header">
         <div class="container">
             <div class="header-content">
                 <div class="logo">
-                    <a href="<?= base_url() ?>">QuizMaster</a>
+                    <a href="<?= base_url() ?>">Invader BAR</a>
                 </div>
                 <nav class="main-nav">
                     <ul>

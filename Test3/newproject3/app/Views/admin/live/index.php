@@ -162,6 +162,7 @@ let participantsInterval;
 document.addEventListener('DOMContentLoaded', function() {
     loadParticipants();
     startParticipantsRefresh();
+    updateProgressBar(); // Initialiser l'affichage
 });
 
 // Gestion du bouton Lancer/Question Suivante
@@ -175,7 +176,7 @@ document.getElementById('next-question-btn').addEventListener('click', function(
 
 function startQuiz() {
     console.log('Démarrage du quiz...');
-    console.log('Quiz ID:', quizId);
+    console.log('Quiz ID:', quizId);    
     // On démarre à partir de null (aucune question encore)
     fetch('/admin/live/next-question', {
         method: 'POST',
@@ -207,6 +208,10 @@ function startQuiz() {
 }
 
 function nextQuestion() {
+    let currentQuestionId = document.getElementById('current-question').value;
+    console.log('nextQuestion - current_question_id:', currentQuestionId);
+    console.log('nextQuestion - quiz_id:', quizId);
+    
     fetch('/admin/live/next-question', {
         method: 'POST',
         headers: {
@@ -215,11 +220,12 @@ function nextQuestion() {
         },
         body: JSON.stringify({
             quiz_id: quizId,
-            current_question_id: document.getElementById('current-question').value
+            current_question_id: currentQuestionId
         })
     })
     .then(response => response.json())
     .then(data => {
+        console.log('nextQuestion response:', data);
         if (data.success) {
             if (data.finished) {
                 alert('Quiz terminé !');
@@ -228,18 +234,27 @@ function nextQuestion() {
                 currentQuestionId = data.current_question_id;
                 currentQuestionIndex = data.current_question_index;
                 document.getElementById('current-question').value = currentQuestionId;
+                console.log('Updated current_question_id to:', currentQuestionId);
                 updateProgressBar();
             }
         } else {
             alert('Erreur: ' + data.message);
         }
+    })
+    .catch(error => {
+        console.error('nextQuestion error:', error);
     });
 }
 
 function updateProgressBar() {
-    document.getElementById('question-progress').textContent = `Question ${currentQuestionIndex} sur ${totalQuestions}`;
-    const progressPercentage = (currentQuestionIndex / totalQuestions) * 100;
-    document.getElementById('question-progress-bar').style.width = progressPercentage + '%';
+    if (!currentQuestionIndex || currentQuestionIndex < 1) {
+        document.getElementById('question-progress').textContent = 'Prêt à commencer';
+        document.getElementById('question-progress-bar').style.width = '0%';
+    } else {
+        document.getElementById('question-progress').textContent = `Question ${currentQuestionIndex} sur ${totalQuestions}`;
+        const progressPercentage = (currentQuestionIndex / totalQuestions) * 100;
+        document.getElementById('question-progress-bar').style.width = progressPercentage + '%';
+    }
 }
 
 function updateInterface() {

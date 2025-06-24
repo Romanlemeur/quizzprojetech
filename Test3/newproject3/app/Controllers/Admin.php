@@ -314,6 +314,19 @@ class Admin extends BaseController
             return redirect()->to('admin/quizzes')->with('error', 'Erreur lors du lancement du quiz en direct');
         }
         
+        // Désactiver les anciennes sessions actives pour ce quiz
+        $quizSessionModel = new \App\Models\QuizSessionModel();
+        $quizSessionModel->where('quiz_id', $id)->set(['is_active' => 0])->update();
+        
+        // Créer une nouvelle session (sans question active pour l'instant)
+        $quizSessionModel->insert([
+            'quiz_id' => $id,
+            'current_question_id' => null, // Aucune question active au démarrage
+            'is_active' => 1,
+            'start_time' => date('Y-m-d H:i:s'),
+            'question_ends_at' => null // Sera défini quand la première question sera lancée
+        ]);
+        
         return redirect()->to('admin/live')->with('message', 'Quiz lancé en direct avec succès');
     }
 
@@ -347,22 +360,85 @@ class Admin extends BaseController
             return $this->response->setStatusCode(400)->setJSON(['success' => false, 'message' => 'Requête invalide']);
         }
         
-        $current = $this->request->getPost('current_question');
-        $quiz_id = $this->request->getPost('quiz_id');
+        // Debug - voir ce qui est reçu
+        $rawInput = $this->request->getBody();
+        log_message('debug', "Raw input: " . $rawInput);
         
+        // Lire les données JSON
+        try {
+            $jsonData = $this->request->getJSON();
+            log_message('debug', "JSON data: " . json_encode($jsonData));
+        } catch (\Exception $e) {
+            log_message('error', "JSON parse error: " . $e->getMessage());
+            return $this->response->setStatusCode(400)->setJSON(['success' => false, 'message' => 'Données JSON invalides']);
+        }
+        
+        $currentQuestionId = $jsonData->current_question_id ?? null;
+        $quiz_id = $jsonData->quiz_id ?? null;
+        
+        // Debug temporaire
+        log_message('debug', "nextQuestion - quiz_id: $quiz_id, current_question_id: " . ($currentQuestionId ?? 'null'));
         
         // Check si le quiz est en direct
         $liveQuiz = $this->quizModel->getLiveQuiz();
-        if (!$liveQuiz || $liveQuiz['id'] != $quiz_id) {
-            return $this->response->setJSON(['success' => false, 'message' => 'Quiz non trouvé ou non en direct1'.$quiz_id]);
+        log_message('debug', "getLiveQuiz result: " . json_encode($liveQuiz));
+        
+        if (!$liveQuiz) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Aucun quiz en direct trouvé']);
         }
         
-        // Update de la question courante
-        $quiz = $this->quizModel->getQuizWithQuestions($quiz_id);
-        $total = count($quiz['questions']);
+        if ($liveQuiz['id'] != $quiz_id) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Quiz ID mismatch: attendu ' . $liveQuiz['id'] . ', reçu ' . $quiz_id]);
+        }
         
-        if ($current >= $total) {
-            // Fin
+        $quiz = $this->quizModel->getQuizWithQuestions($quiz_id);
+        $questions = $quiz['questions'];
+        $total = count($questions);
+        
+        // Si c'est le démarrage (currentQuestionId est null), commencer par la première question
+        if ($currentQuestionId === null || $currentQuestionId === 'null') {
+            if ($total > 0) {
+                $firstQuestion = $questions[0];
+                // Mettre à jour la session avec la première question
+                $quizSessionModel = new \App\Models\QuizSessionModel();
+                $quizSessionModel->where('quiz_id', $quiz_id)->where('is_active', 1)
+                    ->set([
+                        'current_question_id' => $firstQuestion['id'],
+                        'question_ends_at' => date('Y-m-d H:i:s', strtotime('+15 seconds'))
+                    ])->update();
+                
+                return $this->response->setJSON([
+                    'success' => true,
+                    'finished' => false,
+                    'current_question_id' => $firstQuestion['id'],
+                    'current_question_index' => 1,
+                    'total_questions' => $total
+                ]);
+            } else {
+                return $this->response->setJSON(['success' => false, 'message' => 'Aucune question trouvée pour ce quiz']);
+            }
+        }
+        
+        // Trouver l'index de la question courante
+        $currentIndex = -1;
+        foreach ($questions as $i => $q) {
+            if ($q['id'] == $currentQuestionId) {
+                $currentIndex = $i;
+                break;
+            }
+        }
+        
+        log_message('debug', "Current index: $currentIndex, Total questions: $total");
+        
+        // Passer à la question suivante
+        $nextIndex = $currentIndex + 1;
+        log_message('debug', "Next index: $nextIndex");
+        
+        if ($nextIndex >= $total) {
+            log_message('debug', "Quiz finished - nextIndex ($nextIndex) >= total ($total)");
+            // Fin du quiz : désactiver la session
+            $quizSessionModel = new \App\Models\QuizSessionModel();
+            $quizSessionModel->where('quiz_id', $quiz_id)->set(['is_active' => 0])->update();
             return $this->response->setJSON([
                 'success' => true, 
                 'finished' => true,
@@ -370,13 +446,21 @@ class Admin extends BaseController
             ]);
         }
         
-        $next = $current + 1;
+        log_message('debug', "Moving to next question: index $nextIndex");
+        $nextQuestion = $questions[$nextIndex];
+        // Mettre à jour la session
+        $quizSessionModel = new \App\Models\QuizSessionModel();
+        $quizSessionModel->where('quiz_id', $quiz_id)->where('is_active', 1)
+            ->set([
+                'current_question_id' => $nextQuestion['id'],
+                'question_ends_at' => date('Y-m-d H:i:s', strtotime('+15 seconds'))
+            ])->update();
         
-        // Infos pour la suite
         return $this->response->setJSON([
             'success' => true,
             'finished' => false,
-            'current_question' => $next,
+            'current_question_id' => $nextQuestion['id'],
+            'current_question_index' => $nextIndex + 1, // pour affichage humain (1-based)
             'total_questions' => $total
         ]);
     }
@@ -384,9 +468,7 @@ class Admin extends BaseController
     // API pour les participants en temps réel
     public function getLiveParticipants()
     {
-        if (!$this->request->isAJAX()) {
-            return $this->response->setStatusCode(400)->setJSON(['success' => false, 'message' => 'Requête invalide']);
-        }
+        
         
         $quiz_id = $this->request->getGet('quiz_id');
         
@@ -498,4 +580,4 @@ class Admin extends BaseController
             . view('admin/statistics')
             . view('admin/templates/footer');
     }
-} 
+}

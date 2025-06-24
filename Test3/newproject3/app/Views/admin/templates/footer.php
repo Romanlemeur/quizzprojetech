@@ -33,11 +33,6 @@
             }
         }, 5000);
         
-        // Handle next question button click
-        $('#next-question-btn').on('click', function() {
-            nextQuestion();
-        });
-        
         // Handle score update
         $(document).on('click', '.update-score-btn', function() {
             const userId = $(this).data('user-id');
@@ -119,41 +114,6 @@
                     $('#participants-list').html(html);
                     $('#participants-count').text(response.count);
                 }
-            }
-        });
-    }
-    
-    function nextQuestion() {
-        const quizId = $('#quiz-id').val();
-        const currentQuestion = parseInt($('#current-question').val());
-        
-        $.ajax({
-            url: '<?= site_url('admin/live/next-question') ?>',
-            type: 'POST',
-            data: {
-                quiz_id: quizId,
-                current_question: currentQuestion
-            },
-            dataType: 'json',
-            success: function(response) {
-                if (response.success) {
-                    if (response.finished) {
-                        alert('Quiz terminé !');
-                        window.location.href = '<?= site_url('admin/quizzes') ?>';
-                    } else {
-                        $('#current-question').val(response.current_question);
-                        $('#question-progress').text(`Question ${response.current_question} sur ${response.total_questions}`);
-                        
-                        // Update progress bar
-                        const progressPercentage = (response.current_question / response.total_questions) * 100;
-                        $('#question-progress-bar').css('width', progressPercentage + '%');
-                    }
-                } else {
-                    alert('Erreur: ' + response.message);
-                }
-            },
-            error: function() {
-                alert('Erreur de communication avec le serveur');
             }
         });
     }

@@ -117,20 +117,13 @@ document.addEventListener('DOMContentLoaded', function() {
     let hasAnswered = false;
     let currentQuestionId = null; // Pour éviter de réafficher la même question
     
-    // Vérifier la question actuelle toutes les 2 secondes
-    checkCurrentQuestion();
-    setInterval(checkCurrentQuestion, 2000);
-    
-    // Mettre à jour le classement toutes les 3 secondes
-    updateLeaderboard();
-    setInterval(updateLeaderboard, 3000);
-    
     // Boucle principale pour interroger le serveur
     function pollServer() {
         // 1. Obtenir la question actuelle
         fetch(`/quiz/get-current-question?quiz_id=${quizId}`)
             .then(response => response.json())
             .then(data => {
+                console.log('Poll response:', data); // Debug
                 if (data.status === 'in_progress') {
                     if (data.question && data.question.id !== currentQuestionId) {
                         currentQuestionId = data.question.id;
@@ -189,7 +182,9 @@ document.addEventListener('DOMContentLoaded', function() {
         resultIcon.innerHTML = isCorrect ? '<i class="fas fa-check-circle text-success"></i>' : '<i class="fas fa-times-circle text-danger"></i>';
         
         // Après quelques secondes, retourner à l'écran d'attente
-        setTimeout(pollServer, 3000);
+        setTimeout(() => {
+            displayWaitingScreen('En attente de la prochaine question...');
+        }, 3000);
     }
 
     function displayFinishScreen(leaderboard) {
@@ -200,7 +195,6 @@ document.addEventListener('DOMContentLoaded', function() {
         finishScreen.classList.remove('d-none');
         
         // Afficher le score final (si on peut le récupérer)
-        // Ici, on pourrait chercher le user_id dans le leaderboard
         const userScore = leaderboard.find(p => p.user_id == userId);
         finalScore.textContent = userScore ? userScore.score : 'N/A';
     }
@@ -249,10 +243,12 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(response => response.json())
         .then(data => {
-            // La validité de la réponse sera déterminée par le prochain poll
-            // qui affichera le classement mis à jour.
-            // On affiche un résultat simple en attendant.
+            console.log('Submit response:', data); // Debug
             displayResultScreen(data.success, data.message);
+        })
+        .catch(error => {
+            console.error('Submit error:', error);
+            displayResultScreen(false, 'Erreur lors de l\'envoi de la réponse');
         });
     }
 
@@ -282,6 +278,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         });
                     }
                 }
+            })
+            .catch(error => {
+                console.error('Leaderboard error:', error);
             });
     }
 

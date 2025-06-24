@@ -256,18 +256,37 @@ class Quiz extends BaseController
         $quizId = $this->request->getGet('quiz_id');
         $quiz = $this->quizModel->find($quizId);
 
+        // Debug temporaire
+        log_message('debug', "getCurrentQuestion - quiz_id: $quizId");
+        log_message('debug', "Quiz found: " . json_encode($quiz));
+
         if (!$quiz || $quiz['is_live'] != 1) {
+            log_message('debug', "Quiz not found or not live");
             return $this->response->setJSON(['success' => false, 'message' => 'Quiz non trouvé ou non en direct']);
         }
         
         $quizSessionModel = new \App\Models\QuizSessionModel();
         $session = $quizSessionModel->where('quiz_id', $quizId)->where('is_active', 1)->first();
 
+        log_message('debug', "Session found: " . json_encode($session));
+        log_message('debug', "Looking for quiz_id: $quizId, is_active: 1");
+
         if (!$session) {
+            log_message('debug', "No active session found");
+            // Vérifier s'il y a des sessions pour ce quiz
+            $allSessions = $quizSessionModel->where('quiz_id', $quizId)->findAll();
+            log_message('debug', "All sessions for quiz $quizId: " . json_encode($allSessions));
             return $this->response->setJSON(['status' => 'waiting', 'message' => 'Le quiz n\'a pas encore commencé.']);
         }
 
         $question = $this->questionModel->find($session['current_question_id']);
+        log_message('debug', "Question found: " . json_encode($question));
+
+        if (!$session['current_question_id']) {
+            log_message('debug', "No current_question_id in session");
+            return $this->response->setJSON(['status' => 'waiting', 'message' => 'Le quiz n\'a pas encore commencé.']);
+        }
+
         if ($question) {
             $options = $this->optionModel->where('question_id', $question['id'])->findAll();
             $question['options'] = $options;
@@ -276,13 +295,16 @@ class Quiz extends BaseController
         $totalQuestions = $this->questionModel->where('quiz_id', $quizId)->countAllResults();
         $currentQuestionIndex = $this->questionModel->where('quiz_id', $quizId)->where('id <=', $session['current_question_id'])->countAllResults();
 
-        return $this->response->setJSON([
+        $response = [
             'status' => 'in_progress',
             'question' => $question,
             'currentQuestionIndex' => $currentQuestionIndex,
             'totalQuestions' => $totalQuestions,
             'ends_at' => $session['question_ends_at']
-        ]);
+        ];
+
+        log_message('debug', "Response: " . json_encode($response));
+        return $this->response->setJSON($response);
     }
     
     // Soumettre une réponse pour le quiz live
@@ -292,9 +314,11 @@ class Quiz extends BaseController
             return $this->response->setStatusCode(400)->setJSON(['success' => false, 'message' => 'Requête invalide']);
         }
         
-        $quiz_id = $this->request->getPost('quiz_id');
-        $question_id = $this->request->getPost('question_id');
-        $option_id = $this->request->getPost('option_id');
+        // Lire les données JSON
+        $jsonData = $this->request->getJSON();
+        $quiz_id = $jsonData->quiz_id ?? null;
+        $question_id = $jsonData->question_id ?? null;
+        $option_id = $jsonData->option_id ?? null;
         $user_id = session()->get('user_id');
 
         // Vérifier que la session est active
@@ -319,8 +343,7 @@ class Quiz extends BaseController
         }
 
         // Mettre à jour le score du joueur
-        $scoreModel = new ScoreModel();
-        $scoreModel->updateLiveScore($user_id, $quiz_id, $score);
+        $this->scoreModel->updateScore($user_id, $quiz_id, $score);
 
         return $this->response->setJSON(['success' => true, 'message' => 'Réponse enregistrée.']);
     }

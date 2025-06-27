@@ -65,13 +65,17 @@ $routes->group('admin', ['filter' => 'admin'], function($routes) {
     
     // Gestion des utilisateurs
     $routes->get('users', 'Admin::users');
-    $routes->get('user/set-admin/(:num)', 'Admin::setAdmin/$1');
-    $routes->get('user/remove-admin/(:num)', 'Admin::removeAdmin/$1');
+    $routes->get('users/set-admin/(:num)', 'Admin::setAdmin/$1');
+    $routes->get('users/remove-admin/(:num)', 'Admin::removeAdmin/$1');
+    $routes->get('users/delete/(:num)', 'Admin::deleteUser/$1');
     $routes->get('admin/add', 'Auth::addAdmin');
     $routes->post('admin/add', 'Auth::addAdmin');
     
     // Statistiques
     $routes->get('statistics', 'Admin::statistics');
+
+    // Nouvelle route POST pour reset la session de quiz en direct
+    $routes->post('live/reset-session', 'Admin::resetLiveSession');
 });
 
 // Test route

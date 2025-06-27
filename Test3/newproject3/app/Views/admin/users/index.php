@@ -1,6 +1,5 @@
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 style="color: var(--color-accent); font-family: var(--font-family-sans); text-shadow: 0 0 8px var(--color-accent);">Utilisateurs</h1>
         <a href="/admin/quiz/create" class="btn btn-primary">
             <i class="fas fa-plus"></i> Créer un quiz
         </a>
@@ -29,6 +28,7 @@
                         <th>Nom d'utilisateur</th>
                         <th>Email</th>
                         <th>Rôle</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -38,12 +38,48 @@
                                 <td><?= esc($user['id']) ?></td>
                                 <td><?= esc($user['username']) ?></td>
                                 <td><?= esc($user['email']) ?></td>
-                                <td><?= esc($user['role']) ?></td>
+                                <td>
+                                    <span class="badge <?= $user['role'] === 'admin' ? 'bg-danger' : 'bg-secondary' ?>">
+                                        <?= esc($user['role']) ?>
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <?php if ($user['role'] === 'user'): ?>
+                                            <a href="<?= base_url('admin/users/set-admin/' . $user['id']) ?>" 
+                                               class="btn btn-sm btn-success" 
+                                               title="Promouvoir administrateur"
+                                               onclick="return confirm('Promouvoir <?= esc($user['username']) ?> en administrateur ?')">
+                                                <i class="fas fa-user-shield"></i>
+                                            </a>
+                                        <?php else: ?>
+                                            <a href="<?= base_url('admin/users/remove-admin/' . $user['id']) ?>" 
+                                               class="btn btn-sm btn-warning" 
+                                               title="Rétrograder en utilisateur"
+                                               onclick="return confirm('Rétrograder <?= esc($user['username']) ?> en utilisateur ?')">
+                                                <i class="fas fa-user"></i>
+                                            </a>
+                                        <?php endif; ?>
+                                        
+                                        <?php if ($user['id'] != session()->get('user_id')): ?>
+                                            <a href="<?= base_url('admin/users/delete/' . $user['id']) ?>" 
+                                               class="btn btn-sm btn-danger" 
+                                               title="Supprimer l'utilisateur"
+                                               onclick="return confirm('Êtes-vous sûr de vouloir supprimer l\'utilisateur <?= esc($user['username']) ?> ? Cette action est irréversible.')">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        <?php else: ?>
+                                            <span class="btn btn-sm btn-secondary disabled" title="Vous ne pouvez pas vous supprimer">
+                                                <i class="fas fa-user"></i>
+                                            </span>
+                                        <?php endif; ?>
+                                    </div>
+                                </td>
                             </tr>
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="4" class="text-center">Aucun utilisateur trouvé.</td>
+                            <td colspan="5" class="text-center">Aucun utilisateur trouvé.</td>
                         </tr>
                     <?php endif; ?>
                 </tbody>

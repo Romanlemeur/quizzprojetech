@@ -1,6 +1,6 @@
 <div class="retro-bg-layer"></div>
 
-<section class="transparent-bg">
+<section class="quizz-du-moment">
     <div class="container">
         <!-- Alerte quiz en direct -->
         <?php if ($liveQuiz): ?>
@@ -35,9 +35,9 @@
                 <p style="color: var(--color-text-secondary);">Les administrateurs n'ont pas encore créé de catégories de quiz.</p>
             </div>
         <?php else: ?>
-            <div class="categories-grid">
+            <div class="quiz-grid">
                 <?php foreach ($categories as $category): ?>
-                    <div class="category-card">
+                    <div class="quiz-card">
                         <div style="text-align: center; margin-bottom: 24px;">
                             <div style="
                                 width: 80px; 
@@ -55,10 +55,8 @@
                                    style="font-size: 2rem; color: var(--color-primary);"></i>
                             </div>
                         </div>
-                        
                         <h3><?= esc($category['name']) ?></h3>
                         <p><?= esc($category['description'] ?? 'Découvrez les quiz de cette catégorie') ?></p>
-                        
                         <div style="margin-bottom: 16px;">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
                                 <span style="color: var(--color-text-secondary); font-size: 0.9rem;">
@@ -76,7 +74,6 @@
                                 </span>
                             </div>
                         </div>
-                        
                         <a href="/quiz/category/<?= $category['id'] ?>" class="btn btn-primary">
                             <i class="fas fa-play"></i> Voir les Quiz
                         </a>

@@ -307,25 +307,38 @@ class Admin extends BaseController
             return redirect()->to('admin/quizzes')->with('error', 'Quiz non trouvé');
         }
         
-        // Mode direct
+        // Activer le mode live sur le quiz
         $result = $this->quizModel->setQuizLive($id);
         
         if (!$result) {
             return redirect()->to('admin/quizzes')->with('error', 'Erreur lors du lancement du quiz en direct');
         }
         
-        // Désactiver les anciennes sessions actives pour ce quiz
+        // Supprimer toutes les anciennes sessions pour ce quiz
         $quizSessionModel = new \App\Models\QuizSessionModel();
-        $quizSessionModel->where('quiz_id', $id)->set(['is_active' => 0])->update();
+        $quizSessionModel->where('quiz_id', $id)->delete();
         
-        // Créer une nouvelle session (sans question active pour l'instant)
-        $quizSessionModel->insert([
+        // Récupérer la première question du quiz
+        $quizWithQuestions = $this->quizModel->getQuizWithQuestions($id);
+        $questions = $quizWithQuestions['questions'];
+        $firstQuestion = null;
+        
+        if (!empty($questions)) {
+            $firstQuestion = $questions[0];
+        }
+        
+        // Créer une nouvelle session propre et active avec la première question
+        $sessionData = [
             'quiz_id' => $id,
-            'current_question_id' => null, // Aucune question active au démarrage
+            'current_question_id' => $firstQuestion ? $firstQuestion['id'] : null,
             'is_active' => 1,
-            'start_time' => date('Y-m-d H:i:s'),
-            'question_ends_at' => null // Sera défini quand la première question sera lancée
-        ]);
+            'start_time' => date('Y-m-d H:i:s')
+        ];
+        
+        $quizSessionModel->insert($sessionData);
+        
+        log_message('debug', "Nouvelle session live créée pour quiz $id avec première question: " . ($firstQuestion ? $firstQuestion['id'] : 'null'));
+        log_message('debug', "Session data: " . json_encode($sessionData));
         
         return redirect()->to('admin/live')->with('message', 'Quiz lancé en direct avec succès');
     }
@@ -370,6 +383,13 @@ class Admin extends BaseController
             log_message('debug', "JSON data: " . json_encode($jsonData));
         } catch (\Exception $e) {
             log_message('error', "JSON parse error: " . $e->getMessage());
+            // Essayer de lire les données POST comme fallback
+            $quiz_id = $this->request->getPost('quiz_id');
+            $currentQuestionId = $this->request->getPost('current_question_id');
+            log_message('debug', "Fallback to POST - quiz_id: $quiz_id, current_question_id: " . ($currentQuestionId ?? 'null'));
+        }
+        
+        if (!isset($jsonData)) {
             return $this->response->setStatusCode(400)->setJSON(['success' => false, 'message' => 'Données JSON invalides']);
         }
         
@@ -399,21 +419,47 @@ class Admin extends BaseController
         if ($currentQuestionId === null || $currentQuestionId === 'null') {
             if ($total > 0) {
                 $firstQuestion = $questions[0];
-                // Mettre à jour la session avec la première question
-                $quizSessionModel = new \App\Models\QuizSessionModel();
-                $quizSessionModel->where('quiz_id', $quiz_id)->where('is_active', 1)
-                    ->set([
-                        'current_question_id' => $firstQuestion['id'],
-                        'question_ends_at' => date('Y-m-d H:i:s', strtotime('+15 seconds'))
-                    ])->update();
                 
-                return $this->response->setJSON([
-                    'success' => true,
-                    'finished' => false,
-                    'current_question_id' => $firstQuestion['id'],
-                    'current_question_index' => 1,
-                    'total_questions' => $total
-                ]);
+                // Vérifier que la session existe et est active
+                $quizSessionModel = new \App\Models\QuizSessionModel();
+                $existingSession = $quizSessionModel->where('quiz_id', $quiz_id)->where('is_active', 1)->first();
+                
+                log_message('debug', "Existing session check: " . json_encode($existingSession));
+                
+                if (!$existingSession) {
+                    log_message('error', "No active session found for quiz_id: $quiz_id");
+                    return $this->response->setJSON(['success' => false, 'message' => 'Aucune session active trouvée']);
+                }
+                
+                $sessionId = $existingSession['id'];
+                
+                // Mettre à jour la session avec la première question
+                $updateData = [
+                    'current_question_id' => $firstQuestion['id']
+                ];
+                
+                if (!empty($updateData)) {
+                    $result = $quizSessionModel->update($sessionId, $updateData);
+                    
+                    log_message('debug', "Started quiz with first question: " . $firstQuestion['id']);
+                    log_message('debug', "Update result: " . $result);
+                    log_message('debug', "Update data: " . json_encode($updateData));
+                    
+                    // Vérifier que la mise à jour a bien fonctionné
+                    $updatedSession = $quizSessionModel->find($sessionId);
+                    log_message('debug', "Updated session: " . json_encode($updatedSession));
+                    
+                    return $this->response->setJSON([
+                        'success' => true,
+                        'finished' => false,
+                        'current_question_id' => $firstQuestion['id'],
+                        'current_question_index' => 1,
+                        'total_questions' => $total
+                    ]);
+                } else {
+                    log_message('error', "Empty update data for session $sessionId");
+                    return $this->response->setJSON(['success' => false, 'message' => 'Aucune donnée à mettre à jour']);
+                }
             } else {
                 return $this->response->setJSON(['success' => false, 'message' => 'Aucune question trouvée pour ce quiz']);
             }
@@ -434,35 +480,69 @@ class Admin extends BaseController
         $nextIndex = $currentIndex + 1;
         log_message('debug', "Next index: $nextIndex");
         
+        // Vérifier si c'est la dernière question
         if ($nextIndex >= $total) {
-            log_message('debug', "Quiz finished - nextIndex ($nextIndex) >= total ($total)");
-            // Fin du quiz : désactiver la session
+            log_message('debug', "Quiz finished - finalizing scores");
+            
+            // Finaliser les scores de tous les participants
+            $this->scoreModel->finalizeLiveQuiz($quiz_id);
+            
+            // Désactiver la session
             $quizSessionModel = new \App\Models\QuizSessionModel();
             $quizSessionModel->where('quiz_id', $quiz_id)->set(['is_active' => 0])->update();
+            
+            // Désactiver le mode live sur le quiz
+            $this->quizModel->update($quiz_id, ['is_live' => 0]);
+            
             return $this->response->setJSON([
-                'success' => true, 
+                'success' => true,
                 'finished' => true,
-                'message' => 'Quiz terminé'
+                'message' => 'Quiz terminé ! Tous les scores ont été finalisés.'
             ]);
         }
         
         log_message('debug', "Moving to next question: index $nextIndex");
         $nextQuestion = $questions[$nextIndex];
-        // Mettre à jour la session
-        $quizSessionModel = new \App\Models\QuizSessionModel();
-        $quizSessionModel->where('quiz_id', $quiz_id)->where('is_active', 1)
-            ->set([
-                'current_question_id' => $nextQuestion['id'],
-                'question_ends_at' => date('Y-m-d H:i:s', strtotime('+15 seconds'))
-            ])->update();
         
-        return $this->response->setJSON([
-            'success' => true,
-            'finished' => false,
-            'current_question_id' => $nextQuestion['id'],
-            'current_question_index' => $nextIndex + 1, // pour affichage humain (1-based)
-            'total_questions' => $total
-        ]);
+        // Vérifier que la session existe et est active
+        $quizSessionModel = new \App\Models\QuizSessionModel();
+        $existingSession = $quizSessionModel->where('quiz_id', $quiz_id)->where('is_active', 1)->first();
+        
+        log_message('debug', "Existing session before next question: " . json_encode($existingSession));
+        
+        if (!$existingSession) {
+            log_message('error', "No active session found for quiz_id: $quiz_id");
+            return $this->response->setJSON(['success' => false, 'message' => 'Aucune session active trouvée']);
+        }
+        
+        $sessionId = $existingSession['id'];
+        
+        // Mettre à jour la session
+        $updateData = [
+            'current_question_id' => $nextQuestion['id']
+        ];
+        
+        if (!empty($updateData)) {
+            $result = $quizSessionModel->update($sessionId, $updateData);
+            
+            log_message('debug', "Next question update result: " . $result);
+            log_message('debug', "Next question update data: " . json_encode($updateData));
+            
+            // Vérifier que la mise à jour a bien fonctionné
+            $updatedSession = $quizSessionModel->find($sessionId);
+            log_message('debug', "Updated session after next question: " . json_encode($updatedSession));
+            
+            return $this->response->setJSON([
+                'success' => true,
+                'finished' => false,
+                'current_question_id' => $nextQuestion['id'],
+                'current_question_index' => $nextIndex + 1, // pour affichage humain (1-based)
+                'total_questions' => $total
+            ]);
+        } else {
+            log_message('error', "Empty update data for session $sessionId");
+            return $this->response->setJSON(['success' => false, 'message' => 'Aucune donnée à mettre à jour']);
+        }
     }
     
     // API pour les participants en temps réel
@@ -509,10 +589,17 @@ class Admin extends BaseController
             return redirect()->to('admin/quizzes')->with('error', 'Quiz non trouvé');
         }
         
-        // On désactive le mode live
+        // Finaliser les scores de tous les participants avant d'arrêter
+        $this->scoreModel->finalizeLiveQuiz($id);
+        
+        // Désactiver la session live
+        $quizSessionModel = new \App\Models\QuizSessionModel();
+        $quizSessionModel->where('quiz_id', $id)->where('is_active', 1)->set(['is_active' => 0])->update();
+        
+        // Désactiver le mode live sur le quiz
         $this->quizModel->update($id, ['is_live' => 0]);
         
-        return redirect()->to('admin/quizzes')->with('message', 'Quiz arrêté avec succès');
+        return redirect()->to('admin/quizzes')->with('message', 'Quiz arrêté et scores finalisés avec succès');
     }
     
     // Liste des utilisateurs
@@ -563,6 +650,37 @@ class Admin extends BaseController
         return redirect()->to('admin/users')->with('message', 'Droits d\'administrateur supprimés');
     }
     
+    // Supprimer un utilisateur
+    public function deleteUser($id)
+    {
+        $user = $this->userModel->find($id);
+        
+        if (!$user) {
+            return redirect()->to('admin/users')->with('error', 'Utilisateur non trouvé');
+        }
+        
+        // Empêcher la suppression de soi-même
+        if ($user['id'] == session()->get('user_id')) {
+            return redirect()->to('admin/users')->with('error', 'Vous ne pouvez pas supprimer votre propre compte');
+        }
+        
+        // Vérifier qu'il reste au moins un administrateur si on supprime un admin
+        if ($user['role'] === 'admin') {
+            $admins = $this->userModel->getAdmins();
+            if (count($admins) <= 1) {
+                return redirect()->to('admin/users')->with('error', 'Impossible de supprimer le dernier administrateur');
+            }
+        }
+        
+        // Supprimer les scores de l'utilisateur
+        $this->scoreModel->where('user_id', $id)->delete();
+        
+        // Supprimer l'utilisateur
+        $this->userModel->delete($id);
+        
+        return redirect()->to('admin/users')->with('message', 'Utilisateur supprimé avec succès');
+    }
+    
     // Stats diverses
     public function statistics()
     {
@@ -579,5 +697,42 @@ class Admin extends BaseController
         return view('admin/templates/header', $data)
             . view('admin/statistics')
             . view('admin/templates/footer');
+    }
+
+    // Réinitialiser la session live du quiz
+    public function resetLiveSession()
+    {
+        if (!$this->request->isAJAX()) {
+            return $this->response->setStatusCode(400)->setJSON(['success' => false, 'message' => 'Requête invalide']);
+        }
+        $quiz_id = $this->request->getPost('quiz_id');
+        if (!$quiz_id) {
+            return $this->response->setStatusCode(400)->setJSON(['success' => false, 'message' => 'Quiz ID manquant']);
+        }
+        
+        // Récupérer la première question du quiz
+        $quiz = $this->quizModel->getQuizWithQuestions($quiz_id);
+        $questions = $quiz['questions'];
+        $firstQuestion = null;
+        
+        if (!empty($questions)) {
+            $firstQuestion = $questions[0];
+        }
+        
+        $quizSessionModel = new \App\Models\QuizSessionModel();
+        // Supprimer les anciennes sessions
+        $quizSessionModel->where('quiz_id', $quiz_id)->delete();
+        
+        // Créer une nouvelle session avec la première question
+        $sessionData = [
+            'quiz_id' => $quiz_id,
+            'current_question_id' => $firstQuestion ? $firstQuestion['id'] : null,
+            'is_active' => 1,
+            'start_time' => date('Y-m-d H:i:s')
+        ];
+        
+        $quizSessionModel->insert($sessionData);
+        log_message('debug', "Session live réinitialisée pour quiz $quiz_id");
+        return $this->response->setJSON(['success' => true, 'message' => 'Session réinitialisée']);
     }
 }

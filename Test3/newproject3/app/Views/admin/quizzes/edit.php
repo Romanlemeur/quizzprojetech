@@ -1,6 +1,5 @@
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>Modifier le Quiz: <?= esc($quiz['title']) ?></h1>
         <a href="/admin/quizzes" class="btn btn-secondary">
             <i class="fas fa-arrow-left"></i> Retour
         </a>

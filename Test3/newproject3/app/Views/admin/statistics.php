@@ -1,6 +1,5 @@
 <div class="container mt-4">
     <div class="admin-stats-card">
-        <h1>Statistiques du site</h1>
         <ul class="admin-stats-list">
             <li>Total des quiz : <span><?= esc($totalQuizzes) ?></span></li>
             <li>Total des utilisateurs : <span><?= esc($totalUsers) ?></span></li>

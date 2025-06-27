@@ -1,8 +1,8 @@
 <section class="hero">
     <div class="container">
         <div class="hero-content">
-            <h1>Test Your Knowledge</h1>
-            <p>Challenge yourself with our interactive quizzes on various topics. Compete with others and see your name on the leaderboard!</p>
+            <h1>Bienvenue sur InvaderBar&nbsp;!</h1>
+            <p>Défiez-vous avec nos quiz interactifs sur divers sujets. Affrontez d'autres joueurs et voyez votre nom dans le classement !</p>
             <div class="hero-actions">
                 <?php if ($isLoggedIn): ?>
                     <a href="<?= base_url('quiz') ?>" class="btn btn-primary">Start Quiz</a>
@@ -51,7 +51,6 @@
                 <div class="quiz-card card">
                     <h3><?= $quiz['title'] ?></h3>
                     <p><?= $quiz['description'] ?></p>
-                    <a href="<?= base_url('quiz/start/' . $quiz['id']) ?>" class="btn btn-primary">Jouer</a>
                 </div>
             <?php endforeach; ?>
         </div>
@@ -73,8 +72,8 @@
             <div class="step-card card">
                 <div class="card-body">
                     <i class="fas fa-search fa-3x mb-3 text-primary"></i>
-                    <h3>2. Choisissez un quiz</h3>
-                    <p>Parcourez nos catégories et trouvez le quiz qui vous intéresse.</p>
+                    <h3>2. Rejoignez un quiz</h3>
+                    <p>Amusez vous avec les autres utilisateurs et défiez l'admin!</p>
                 </div>
             </div>
             <div class="step-card card">

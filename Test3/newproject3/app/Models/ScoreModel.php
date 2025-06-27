@@ -111,11 +111,10 @@ class ScoreModel extends Model
             'is_live' => 1
         ];
         
-        $data = [
-            'score' => $score
-        ];
-        
-        return $this->where($where)->set($data)->update();
+        // Additionner le score au lieu de l'écraser
+        return $this->where($where)
+            ->set('score', "score + $score", false)
+            ->update();
     }
     
     // Ajouter un joueur à un quiz en direct
@@ -144,10 +143,9 @@ class ScoreModel extends Model
         return $this->getInsertID();
     }
     
-    // Finaliser un quiz en direct (marquer comme terminé)
+    // Finaliser un quiz en direct (marquer comme terminé avec completed_at)
     public function finalizeLiveQuiz($quiz_id)
     {
-        // Je sais pas si c'est la meilleure façon de faire mais ça marche
         $data = [
             'is_live' => 0,
             'completed_at' => date('Y-m-d H:i:s')
@@ -157,6 +155,31 @@ class ScoreModel extends Model
                     ->where('is_live', 1)
                     ->set($data)
                     ->update();
+    }
+    
+    // Finaliser le score d'un joueur spécifique dans un quiz live
+    public function finalizePlayerScore($user_id, $quiz_id)
+    {
+        $data = [
+            'is_live' => 0,
+            'completed_at' => date('Y-m-d H:i:s')
+        ];
+        
+        return $this->where('user_id', $user_id)
+                    ->where('quiz_id', $quiz_id)
+                    ->where('is_live', 1)
+                    ->set($data)
+                    ->update();
+    }
+    
+    // Récupérer le score final d'un joueur pour un quiz
+    public function getPlayerFinalScore($user_id, $quiz_id)
+    {
+        return $this->where('user_id', $user_id)
+                    ->where('quiz_id', $quiz_id)
+                    ->where('completed_at IS NOT NULL')
+                    ->orderBy('completed_at', 'DESC')
+                    ->first();
     }
     
     // Liste des quiz les plus populaires

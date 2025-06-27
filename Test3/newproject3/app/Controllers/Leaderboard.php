@@ -46,11 +46,13 @@ class Leaderboard extends BaseController
             return redirect()->to('leaderboard');
         }
 
-        // Récupérer les scores pour ce quiz
+        // Récupérer les scores pour ce quiz (incluant les scores live)
         $data = [
             'title' => 'Classement: ' . $quiz['title'],
             'quiz' => $quiz,
-            'leaderboard' => $this->scoreModel->getLeaderboard($quiz_id),
+            'leaderboard' => $this->leaderboardModel->getQuizLeaderboard($quiz_id),
+            'liveLeaderboard' => $this->leaderboardModel->getLiveQuizLeaderboard($quiz_id),
+            'classicLeaderboard' => $this->leaderboardModel->getClassicQuizLeaderboard($quiz_id),
             'quizzes' => $this->quizModel->findAll(), // pour le filtre
             'filter_quiz' => $quiz_id
         ];

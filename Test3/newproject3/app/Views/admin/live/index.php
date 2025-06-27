@@ -1,3 +1,7 @@
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <button id="reset-session-btn" class="btn btn-danger"><i class="fas fa-sync-alt"></i> Réinitialiser la session</button>
+</div>
+
 <div class="row">
     <div class="col-md-8">
         <div class="card mb-4">
@@ -185,12 +189,18 @@ function startQuiz() {
             'X-Requested-With': 'XMLHttpRequest'
         },
         body: JSON.stringify({
-            quiz_id: quizId,
+            quiz_id: parseInt(quizId),
             current_question_id: null
         })
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
     .then(data => {
+        console.log('Start quiz response:', data);
         if (data.success) {
             isQuizStarted = true;
             currentQuestionId = data.current_question_id;
@@ -201,9 +211,14 @@ function startQuiz() {
             // Changer le bouton
             const btn = document.getElementById('next-question-btn');
             btn.innerHTML = '<i class="fas fa-arrow-right"></i> Question Suivante';
+            console.log('Quiz started successfully');
         } else {
             alert('Erreur: ' + data.message);
         }
+    })
+    .catch(error => {
+        console.error('Start quiz error:', error);
+        alert('Erreur lors du démarrage du quiz: ' + error.message);
     });
 }
 
@@ -219,11 +234,16 @@ function nextQuestion() {
             'X-Requested-With': 'XMLHttpRequest'
         },
         body: JSON.stringify({
-            quiz_id: quizId,
-            current_question_id: currentQuestionId
+            quiz_id: parseInt(quizId),
+            current_question_id: currentQuestionId ? parseInt(currentQuestionId) : null
         })
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
     .then(data => {
         console.log('nextQuestion response:', data);
         if (data.success) {
@@ -243,6 +263,7 @@ function nextQuestion() {
     })
     .catch(error => {
         console.error('nextQuestion error:', error);
+        alert('Erreur lors du passage à la question suivante: ' + error.message);
     });
 }
 
@@ -423,5 +444,29 @@ window.addEventListener('beforeunload', function() {
     if (participantsInterval) {
         clearInterval(participantsInterval);
     }
+});
+
+document.getElementById('reset-session-btn').addEventListener('click', function() {
+    if (!confirm('Voulez-vous vraiment réinitialiser la session live ?')) return;
+    fetch('/admin/live/reset-session', {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: 'quiz_id=' + encodeURIComponent(quizId)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Session réinitialisée !');
+            window.location.reload();
+        } else {
+            alert('Erreur : ' + data.message);
+        }
+    })
+    .catch(err => {
+        alert('Erreur lors de la réinitialisation');
+    });
 });
 </script> 
